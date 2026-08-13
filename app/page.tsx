@@ -1,6 +1,7 @@
 import { AnimationSection } from "@/modules/landing/components/animation-section";
 import { CardsSection } from "@/modules/landing/components/cards-section";
 import { ChartSection } from "@/modules/landing/components/chart-section";
+import { FooterSection } from "@/modules/landing/components/footer-section";
 import { HeroSection } from "@/modules/landing/components/hero-section";
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
       <CardsSection />
       <AnimationSection />
       <ChartSection />
+      <FooterSection />
     </main>
   );
 }
