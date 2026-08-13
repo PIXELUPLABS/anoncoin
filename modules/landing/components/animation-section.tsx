@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const SCROLL_DISTANCE = 800;
@@ -143,10 +144,18 @@ export function AnimationSection() {
   return (
     <section
       ref={sectionRef}
-      className="flex h-200 w-full overflow-hidden border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
+      className="relative flex h-200 w-full overflow-hidden border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
     >
+      <Image
+        src="/media/animation-bg.png"
+        alt=""
+        fill
+        draggable={false}
+        className="object-cover"
+        style={{ opacity: progress }}
+      />
       <div
-        className="flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-r-[0.5px] border-[#FFFFFF1A]"
+        className="relative flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-r-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
         style={{ transform: `translateX(${-progress * 100}%)` }}
       >
         {Array.from({ length: 3 }).map((_, index) => (
@@ -154,7 +163,7 @@ export function AnimationSection() {
         ))}
       </div>
       <div
-        className="flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-l-[0.5px] border-[#FFFFFF1A]"
+        className="relative flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-l-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
         style={{ transform: `translateX(${progress * 100}%)` }}
       >
         {Array.from({ length: 3 }).map((_, index) => (
