@@ -4,7 +4,7 @@ const CARDS = [
   {
     title: "Stocks",
     description: "Global companies and sector leaders",
-    image: "/media/card-0.png",
+    image: "/media/card-1.png",
     hoverImage: "/media/card-5.png",
   },
   {
