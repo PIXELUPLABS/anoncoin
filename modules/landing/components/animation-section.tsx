@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const SCROLL_DISTANCE = 800;
+const MAX_PROGRESS = 2; // phase 1 (0-1): columns open. phase 2 (1-2): cards fly in.
 const KEY_DELTAS: Record<string, number> = {
   ArrowDown: 80,
   ArrowUp: -80,
@@ -11,6 +12,39 @@ const KEY_DELTAS: Record<string, number> = {
   PageUp: -800,
   " ": 800,
 };
+
+// Each card starts fully off-page beyond its origin corner (hidden) and slides in just
+// far enough to rest near that same corner - a small entrance, not a trip to center.
+const CARD_ANIMATIONS = [
+  {
+    src: "/media/animation-card-1.png",
+    width: 340,
+    height: 177,
+    hidden: { left: 1500, top: 860 }, // bottom-right, off-page
+    visible: { left: 1044, top: 567 },
+  },
+  {
+    src: "/media/animation-card-2.png",
+    width: 340,
+    height: 179,
+    hidden: { left: -400, top: 860 }, // bottom-left, off-page
+    visible: { left: 56, top: 565 },
+  },
+  {
+    src: "/media/animation-card-3.png",
+    width: 340,
+    height: 184,
+    hidden: { left: -400, top: -244 }, // top-left, off-page
+    visible: { left: 56, top: 56 },
+  },
+  {
+    src: "/media/animation-card-4.png",
+    width: 340,
+    height: 187,
+    hidden: { left: 1500, top: -247 }, // top-right, off-page
+    visible: { left: 1044, top: 56 },
+  },
+];
 
 export function AnimationSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -24,7 +58,7 @@ export function AnimationSection() {
     if (!section) return;
 
     const setProgressClamped = (value: number) => {
-      const next = Math.min(1, Math.max(0, value));
+      const next = Math.min(MAX_PROGRESS, Math.max(0, value));
       progressRef.current = next;
       setProgress(next);
       return next;
@@ -44,7 +78,7 @@ export function AnimationSection() {
 
       if (delta > 0) {
         // Scrolling down.
-        if (current >= 1) {
+        if (current >= MAX_PROGRESS) {
           lockTopRef.current = null;
           return false; // already fully open, let scrolling continue
         }
@@ -55,11 +89,11 @@ export function AnimationSection() {
           // then feed the leftover into the animation instead of letting it fall through.
           window.scrollBy(0, distance);
           const next = setProgressClamped(current + (delta - distance) / SCROLL_DISTANCE);
-          lockTopRef.current = next < 1 ? entryTop : null;
+          lockTopRef.current = next < MAX_PROGRESS ? entryTop : null;
           return true;
         }
         const next = setProgressClamped(current + delta / SCROLL_DISTANCE);
-        lockTopRef.current = next < 1 ? entryTop : null;
+        lockTopRef.current = next < MAX_PROGRESS ? entryTop : null;
         return true;
       }
 
@@ -141,6 +175,9 @@ export function AnimationSection() {
     };
   }, []);
 
+  const openProgress = Math.min(1, progress);
+  const cardsProgress = Math.max(0, progress - 1);
+
   return (
     <section
       ref={sectionRef}
@@ -152,11 +189,11 @@ export function AnimationSection() {
         fill
         draggable={false}
         className="object-cover"
-        style={{ opacity: progress }}
+        style={{ opacity: openProgress }}
       />
       <div
         className="relative flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-r-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
-        style={{ transform: `translateX(${-progress * 100}%)` }}
+        style={{ transform: `translateX(${-openProgress * 100}%)` }}
       >
         {Array.from({ length: 3 }).map((_, index) => (
           <div key={index} className="h-full flex-1" />
@@ -164,12 +201,31 @@ export function AnimationSection() {
       </div>
       <div
         className="relative flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-l-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
-        style={{ transform: `translateX(${progress * 100}%)` }}
+        style={{ transform: `translateX(${openProgress * 100}%)` }}
       >
         {Array.from({ length: 3 }).map((_, index) => (
           <div key={index} className="h-full flex-1" />
         ))}
       </div>
+      {CARD_ANIMATIONS.map((card) => {
+        const dx = (card.hidden.left - card.visible.left) * (1 - cardsProgress);
+        const dy = (card.hidden.top - card.visible.top) * (1 - cardsProgress);
+        return (
+          <div
+            key={card.src}
+            className="absolute"
+            style={{
+              left: card.visible.left,
+              top: card.visible.top,
+              width: card.width,
+              height: card.height,
+              transform: `translate(${dx}px, ${dy}px)`,
+            }}
+          >
+            <Image src={card.src} alt="" fill draggable={false} className="object-contain" />
+          </div>
+        );
+      })}
     </section>
   );
 }
