@@ -11,6 +11,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-dm-mono: var(--font-dm-mono);
+  --font-general-sans: var(--font-general-sans);
+  --font-inter: var(--font-inter);
 }
 
 @media (prefers-color-scheme: dark) {

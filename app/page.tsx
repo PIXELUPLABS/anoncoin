@@ -1,9 +1,11 @@
+import { CardsSection } from "@/modules/landing/components/cards-section";
 import { HeroSection } from "@/modules/landing/components/hero-section";
 
 export default function Home() {
   return (
     <main className="flex flex-1 flex-col">
       <HeroSection />
+      <CardsSection />
     </main>
   );
 }
