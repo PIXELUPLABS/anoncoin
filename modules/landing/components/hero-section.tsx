@@ -1,6 +1,3 @@
-import Image from "next/image";
-
-import { DashedGridLines } from "./dashed-grid-lines";
 import { HeroActions } from "./hero-actions";
 import { HeroLogos } from "./hero-logos";
 import { HeroTagline } from "./hero-tagline";
@@ -10,17 +7,21 @@ export function HeroSection() {
   return (
     <section className="flex flex-col">
       <Navbar />
-      <div className="relative h-196 w-full border-b border-[#FFFFFF1A] bg-[#0B0B0B]">
-        <DashedGridLines />
+      <div className="relative h-196 w-full overflow-hidden border-b border-[#FFFFFF1A] bg-[#0B0B0B]">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src="/media/hero-bg-video.mp4" type="video/mp4" />
+        </video>
         <div className="absolute top-36 left-14 flex flex-col items-start">
-          <Image
-            src="/media/hero-text.png"
-            alt="The lightning-fast trading terminal for Hyperliquid"
-            width={656}
-            height={237}
-            priority
-            draggable={false}
-          />
+          <h1 className="font-general-sans w-[656px] text-[72px] leading-[110%] font-normal tracking-[-0.02em] text-white">
+            The Lightening-fast Trading Terminal for Hyperliquid
+          </h1>
           <HeroActions />
         </div>
         <div className="absolute top-[594px] left-14 flex flex-col items-start">
