@@ -8,7 +8,10 @@ const dashedLineBackground = `url("data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' width='1' height='8'><line x1='0.5' y1='0' x2='0.5' y2='8' stroke='#FFFFFF' stroke-opacity='0.06' stroke-width='1' stroke-dasharray='4 4'/></svg>`
 )}")`;
 
-export function DashedGridLines() {
+const FADE_MASK_IMAGE =
+  "linear-gradient(to bottom, transparent 0%, transparent 33%, black 40%, black 100%)";
+
+export function DashedGridLines({ fade = true }: { fade?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [lineCount, setLineCount] = useState(0);
 
@@ -33,12 +36,11 @@ export function DashedGridLines() {
     <div
       ref={containerRef}
       className="pointer-events-none absolute inset-y-0 left-14 right-14 flex justify-between"
-      style={{
-        WebkitMaskImage:
-          "linear-gradient(to bottom, transparent 0%, transparent 33%, black 40%, black 100%)",
-        maskImage:
-          "linear-gradient(to bottom, transparent 0%, transparent 33%, black 40%, black 100%)",
-      }}
+      style={
+        fade
+          ? { WebkitMaskImage: FADE_MASK_IMAGE, maskImage: FADE_MASK_IMAGE }
+          : undefined
+      }
     >
       {Array.from({ length: lineCount }).map((_, index) => (
         <div
