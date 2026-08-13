@@ -46,7 +46,7 @@ export function ChartSection() {
             </button>
           </div>
         </div>
-        <div className="mt-12 flex w-full flex-col gap-4">
+        <div className="mt-12 flex w-full flex-col gap-6">
           {[
             {
               src: "/media/chart-img-1.png",

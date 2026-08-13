@@ -69,7 +69,7 @@ export function CardsSection() {
         {CARDS.map((card) => (
           <div
             key={card.title}
-            className="group relative h-full flex-1 border-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
+            className="group relative h-full flex-1 overflow-hidden border-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
           >
             <Image
               src={card.image}
@@ -83,7 +83,7 @@ export function CardsSection() {
               alt={card.title}
               fill
               draggable={false}
-              className="object-fill opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              className="scale-100 object-fill opacity-0 transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100"
             />
           </div>
         ))}
