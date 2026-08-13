@@ -32,8 +32,8 @@ export function CardsSection() {
     <section className="relative h-[861px] w-full bg-[#0B0B0B]">
       <div className="pointer-events-none absolute inset-y-0 left-14 w-px bg-[#FFFFFF1A]" />
       <div className="pointer-events-none absolute inset-y-0 right-14 w-px bg-[#FFFFFF1A]" />
-      <div className="h-30 w-full border-b border-[#FFFFFF1A]" />
-      <div className="h-38 w-full border-b border-[#FFFFFF1A]">
+      <div className="h-30 w-full border-b-[0.5px] border-[#FFFFFF1A]" />
+      <div className="h-38 w-full border-b-[0.5px] border-[#FFFFFF1A]">
         <div className="ml-14 flex h-[22px] w-[209px] items-center gap-2 rounded-none bg-white px-2 py-1">
           <Image
             src="/media/globe-icon.svg"
@@ -69,7 +69,7 @@ export function CardsSection() {
         {CARDS.map((card) => (
           <div
             key={card.title}
-            className="group relative h-full flex-1 border border-[#FFFFFF1A] bg-[#0B0B0B]"
+            className="group relative h-full flex-1 border-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
           >
             <Image
               src={card.image}

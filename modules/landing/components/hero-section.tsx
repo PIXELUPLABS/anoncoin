@@ -7,7 +7,7 @@ export function HeroSection() {
   return (
     <section className="flex flex-col">
       <Navbar />
-      <div className="relative h-196 w-full overflow-hidden border-b border-[#FFFFFF1A] bg-[#0B0B0B]">
+      <div className="relative h-196 w-full overflow-hidden border-b-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]">
         <video
           autoPlay
           muted

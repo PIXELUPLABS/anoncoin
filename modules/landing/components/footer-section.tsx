@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function FooterSection() {
   return (
-    <footer className="relative h-150 w-full border-t border-[#FFFFFF1A] bg-[#0B0B0B]">
+    <footer className="relative h-150 w-full border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]">
       <Image
         src="/media/footer-bg.png"
         alt=""

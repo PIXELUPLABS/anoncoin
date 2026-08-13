@@ -10,7 +10,7 @@ export function HeroActions() {
       </button>
       <button
         type="button"
-        className={`${BUTTON_CLASSNAME} w-[181px] border border-[#FFFFFF1A] bg-[#0B0B0B] text-[#888888]`}
+        className={`${BUTTON_CLASSNAME} w-[181px] border-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] text-[#888888]`}
       >
         <span className="h-[7px] w-[7px] shrink-0 -translate-y-px bg-current" />
         Learn More
