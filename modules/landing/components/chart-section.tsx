@@ -23,7 +23,12 @@ export function ChartSection() {
           </span>
         </div>
         <div className="mt-6 flex w-full items-start justify-between">
-          <h2 className="font-general-sans text-[52px] leading-[110%] font-normal tracking-[-0.02em] text-white capitalize">
+          <h2
+            className="font-general-sans bg-clip-text text-[52px] leading-[110%] font-normal tracking-[-0.02em] text-transparent capitalize"
+            style={{
+              backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
+            }}
+          >
             Market intelligence delivered <br /> directly to the chart.
           </h2>
           <div className="flex flex-col items-end">
@@ -94,7 +99,13 @@ export function ChartSection() {
                 style={{ left: "calc(50% + 16px)", right: 0, top: 221 }}
               >
                 <Image src={chartImage.icon} alt="" width={24} height={24} draggable={false} />
-                <p className="font-general-sans mt-8 text-[28px] leading-[110%] font-normal tracking-[-0.02em] text-white">
+                <p
+                  className="font-general-sans mt-8 bg-clip-text text-[28px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
+                  }}
+                >
                   {chartImage.label}
                 </p>
                 <p className="mt-4 w-full font-inter text-[16px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">

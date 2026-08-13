@@ -48,7 +48,12 @@ export function CardsSection() {
           </span>
         </div>
         <div className="mt-4 flex w-full items-end justify-between">
-          <h2 className="font-general-sans ml-14 text-[52px] leading-[110%] font-normal tracking-[-0.02em] text-white">
+          <h2
+            className="font-general-sans ml-14 bg-clip-text text-[52px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
+            style={{
+              backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
+            }}
+          >
             250+ Assets.
             <br />
             One Terminal

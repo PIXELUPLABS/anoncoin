@@ -19,7 +19,12 @@ export function HeroSection() {
           <source src="/media/hero-bg-video.mp4" type="video/mp4" />
         </video>
         <div className="absolute top-36 left-14 flex flex-col items-start">
-          <h1 className="font-general-sans w-[656px] text-[72px] leading-[110%] font-normal tracking-[-0.02em] text-white">
+          <h1
+            className="font-general-sans w-[656px] bg-clip-text text-[72px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
+            style={{
+              backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
+            }}
+          >
             The Lightening-fast Trading Terminal for Hyperliquid
           </h1>
           <HeroActions />
