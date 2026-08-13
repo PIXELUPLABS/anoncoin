@@ -1,5 +1,32 @@
 import Image from "next/image";
 
+const CARDS = [
+  {
+    title: "Stocks",
+    description: "Global companies and sector leaders",
+    image: "/media/card-0.png",
+    hoverImage: "/media/card-5.png",
+  },
+  {
+    title: "Crypto",
+    description: "Majors, altcoins, & emerging markets",
+    image: "/media/card-2.png",
+    hoverImage: "/media/card-6.png",
+  },
+  {
+    title: "Commodities",
+    description: "Energy, metals, and real-world markets",
+    image: "/media/card-3.png",
+    hoverImage: "/media/card-7.png",
+  },
+  {
+    title: "Indices",
+    description: "Broad exposure in a single position",
+    image: "/media/card-4.png",
+    hoverImage: "/media/card-8.png",
+  },
+];
+
 export function CardsSection() {
   return (
     <section className="relative h-[861px] w-full bg-[#0B0B0B]">
@@ -32,6 +59,41 @@ export function CardsSection() {
             available
           </p>
         </div>
+      </div>
+      <div className="mt-12 mx-14 flex h-[421px] gap-4">
+        {CARDS.map((card) => (
+          <div
+            key={card.title}
+            className="group relative h-full flex-1 border border-[#FFFFFF1A] bg-[#0B0B0B]"
+          >
+            <Image
+              src={card.image}
+              alt={card.title}
+              fill
+              draggable={false}
+              className="object-fill transition-opacity duration-300 group-hover:opacity-0"
+            />
+            <Image
+              src={card.hoverImage}
+              alt={card.title}
+              fill
+              draggable={false}
+              className="object-fill opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            />
+          </div>
+        ))}
+      </div>
+      <div className="mx-14 mt-4 flex gap-4">
+        {CARDS.map((card) => (
+          <div key={card.title} className="flex-1">
+            <p className="font-inter text-[20px] leading-none font-normal tracking-[-0.02em] text-white">
+              {card.title}
+            </p>
+            <p className="mt-2 font-inter text-[14px] leading-[120%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
+              {card.description}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );

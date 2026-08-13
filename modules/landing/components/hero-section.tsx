@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import { DashedGridLines } from "./dashed-grid-lines";
 import { HeroActions } from "./hero-actions";
+import { HeroLogos } from "./hero-logos";
 import { HeroTagline } from "./hero-tagline";
 import { Navbar } from "./navbar";
 
@@ -22,7 +23,10 @@ export function HeroSection() {
           />
           <HeroActions />
         </div>
-        <HeroTagline />
+        <div className="absolute top-[594px] left-14 flex flex-col items-start">
+          <HeroTagline />
+          <HeroLogos />
+        </div>
       </div>
     </section>
   );
