@@ -3,6 +3,14 @@ import Image from "next/image";
 export function FooterSection() {
   return (
     <footer className="relative h-150 w-full border-t border-[#FFFFFF1A] bg-[#0B0B0B]">
+      <Image
+        src="/media/footer-bg.png"
+        alt=""
+        width={850}
+        height={580}
+        draggable={false}
+        className="pointer-events-none absolute bottom-0 left-0"
+      />
       <div className="pointer-events-none absolute inset-y-0 left-6.5 w-px bg-[#FFFFFF1A]" />
       <div className="pointer-events-none absolute inset-y-0 right-6.5 w-px bg-[#FFFFFF1A]" />
       <div className="absolute top-14 right-14 left-14 flex flex-col">
