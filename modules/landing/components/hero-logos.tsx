@@ -22,7 +22,11 @@ const REPEAT_COUNT = 4;
 export function HeroLogos() {
   return (
     <div
-      className="mt-12 w-[calc((100vw-112px)*0.6)] overflow-hidden"
+      // Sized against the fixed 1440px design width (matching ResponsiveScale's BASE_WIDTH),
+      // not the real viewport - the whole page is laid out at that fixed width and scaled
+      // via CSS transform, and `vw` ignores that transform, so it drifted from the design
+      // above 1920px once growth was capped there and the two stopped scaling in lockstep.
+      className="mt-12 w-[796.8px] overflow-hidden"
       style={{
         WebkitMaskImage: "linear-gradient(to right, black 0%, black 55%, transparent 100%)",
         maskImage: "linear-gradient(to right, black 0%, black 55%, transparent 100%)",
