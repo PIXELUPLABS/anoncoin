@@ -13,6 +13,12 @@ const KEY_DELTAS: Record<string, number> = {
   " ": 800,
 };
 
+// Eases 0->1 decelerating into place - monotonic (never overshoots and settles back),
+// so a card's landing only ever keeps moving forward toward its mark.
+function easeOutCubic(t: number) {
+  return 1 - (1 - t) ** 3;
+}
+
 // Each card starts fully off-page beyond its origin corner (hidden) and slides in just
 // far enough to rest near that same corner - a small entrance, not a trip to center.
 const CARD_ANIMATIONS = [
@@ -21,14 +27,30 @@ const CARD_ANIMATIONS = [
     width: 340,
     height: 177,
     hidden: { left: 1500, top: 860 }, // bottom-right, off-page
-    visible: { left: 1044, top: 567 },
+    visible: { left: 950, top: 585 },
+    // Curved entrance: arcs in, lands a little further than its base mark (never back-tracks),
+    // settling with a faint left tilt, and scales up from the corner it flies in from while fading in.
+    landingOvershoot: 0.06,
+    arcHeight: 70,
+    tiltDeg: -3,
+    scaleFrom: 0.75,
+    transformOrigin: "bottom right",
+    fadeIn: true,
   },
   {
     src: "/media/animation-card-2.png",
     width: 340,
     height: 179,
     hidden: { left: -400, top: 860 }, // bottom-left, off-page
-    visible: { left: 56, top: 565 },
+    visible: { left: 85, top: 580 },
+    // Mirror of card 1 (tilts right, scales from bottom-left), but with slightly different
+    // values throughout so it doesn't land in lockstep with card 1 - keeps it feeling organic.
+    landingOvershoot: 0.045,
+    arcHeight: 55,
+    tiltDeg: 2,
+    scaleFrom: 0.8,
+    transformOrigin: "bottom left",
+    fadeIn: true,
   },
   {
     src: "/media/animation-card-3.png",
@@ -36,6 +58,15 @@ const CARD_ANIMATIONS = [
     height: 184,
     hidden: { left: -400, top: -244 }, // top-left, off-page
     visible: { left: 56, top: 56 },
+    // Instead of resting at its corner, this one drifts on a little further, only up to
+    // where the centered text starts - shrinking and gradually blurring as it goes, and
+    // sitting beneath the text's z-index so it reads as sliding behind it, not landing next to it.
+    driftTarget: { left: 190, top: 150 },
+    tiltDeg: -5,
+    scaleTo: 0.92,
+    blurTo: 1.2,
+    zIndex: 5,
+    fadeIn: true,
   },
   {
     src: "/media/animation-card-4.png",
@@ -43,6 +74,14 @@ const CARD_ANIMATIONS = [
     height: 187,
     hidden: { left: 1500, top: -247 }, // top-right, off-page
     visible: { left: 1044, top: 56 },
+    // Mirror of card 3 (tilts right, drifts left-and-down past its corner toward the
+    // centered text), shrinking and gradually blurring, sitting beneath the text's z-index.
+    driftTarget: { left: 910, top: 150 },
+    tiltDeg: 5,
+    scaleTo: 0.8,
+    blurTo: 1.5,
+    zIndex: 5,
+    fadeIn: true,
   },
 ];
 
@@ -192,7 +231,32 @@ export function AnimationSection() {
         style={{ opacity: openProgress }}
       />
       <div
-        className="relative flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-r-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
+        className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-8"
+        style={{ opacity: openProgress }}
+      >
+        <p className="font-general-sans max-w-4xl text-center text-[56px] leading-[120%] font-normal tracking-[-0.02em] text-white">
+          Every conversation
+          <Image
+            src="/media/x-icon.png"
+            alt=""
+            width={56}
+            height={56}
+            draggable={false}
+            className="relative -top-1.5 inline-block align-middle mx-1"
+          />
+          shapes <br /> the market. We turn the right <br /> ones into your next trade
+          <Image
+            src="/media/coin-icon.png"
+            alt=""
+            width={60}
+            height={60}
+            draggable={false}
+            className="inline-block align-middle mx-1 mb-3"
+          />
+        </p>
+      </div>
+      <div
+        className="relative z-20 flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-r-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
         style={{ transform: `translateX(${-openProgress * 100}%)` }}
       >
         {Array.from({ length: 3 }).map((_, index) => (
@@ -200,7 +264,7 @@ export function AnimationSection() {
         ))}
       </div>
       <div
-        className="relative flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-l-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
+        className="relative z-20 flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-l-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
         style={{ transform: `translateX(${openProgress * 100}%)` }}
       >
         {Array.from({ length: 3 }).map((_, index) => (
@@ -208,18 +272,53 @@ export function AnimationSection() {
         ))}
       </div>
       {CARD_ANIMATIONS.map((card) => {
-        const dx = (card.hidden.left - card.visible.left) * (1 - cardsProgress);
-        const dy = (card.hidden.top - card.visible.top) * (1 - cardsProgress);
+        // Cards without the extra fields fall back to the original straight, linear glide.
+        const eased = card.landingOvershoot !== undefined || card.driftTarget !== undefined;
+        const posT = eased ? easeOutCubic(cardsProgress) : cardsProgress;
+        // "Go a little further" is baked into the resting spot itself (pushed a bit past
+        // `visible`, further from `hidden`) rather than overshot-and-corrected mid-flight,
+        // so the card only ever keeps moving forward and never travels backward. A card can
+        // instead drift all the way past its corner mark toward an explicit point (e.g. the
+        // centered text) via `driftTarget`.
+        const targetLeft = card.driftTarget
+          ? card.driftTarget.left
+          : card.landingOvershoot
+            ? card.visible.left + (card.visible.left - card.hidden.left) * card.landingOvershoot
+            : card.visible.left;
+        const targetTop = card.driftTarget
+          ? card.driftTarget.top
+          : card.landingOvershoot
+            ? card.visible.top + (card.visible.top - card.hidden.top) * card.landingOvershoot
+            : card.visible.top;
+        const dx = (card.hidden.left - targetLeft) * (1 - posT);
+        // Monotonic rise (0 -> arcHeight, never back down) at a different easing rate than
+        // posT, so x and y arrive at different speeds - that mismatch is what reads as a
+        // curved path, without ever dipping back down once it nears its lift.
+        const arcLift = card.arcHeight ? card.arcHeight * Math.sin((Math.min(1, cardsProgress) * Math.PI) / 2) : 0;
+        const dy = (card.hidden.top - targetTop) * (1 - posT) - arcLift;
+        const rotate = card.tiltDeg ? card.tiltDeg * posT : 0;
+        const scaleFrom = card.scaleFrom ?? 1;
+        const scaleTo = card.scaleTo ?? 1;
+        const scale = scaleFrom + (scaleTo - scaleFrom) * posT;
+        const opacity = card.fadeIn ? Math.min(1, cardsProgress / 0.7) : 1;
+        // Ease-in (slow start, sharper toward the end) rather than posT's ease-out, so the
+        // card reads as a clear image for most of its travel and only gains blur near the end,
+        // instead of looking blurred as soon as it fades into view.
+        const blurPx = card.blurTo ? card.blurTo * cardsProgress ** 2 : 0;
         return (
           <div
             key={card.src}
-            className="absolute"
+            className="absolute z-30"
             style={{
-              left: card.visible.left,
-              top: card.visible.top,
+              left: targetLeft,
+              top: targetTop,
               width: card.width,
               height: card.height,
-              transform: `translate(${dx}px, ${dy}px)`,
+              opacity,
+              zIndex: card.zIndex,
+              filter: blurPx ? `blur(${blurPx}px)` : undefined,
+              transformOrigin: card.transformOrigin ?? "center",
+              transform: `translate(${dx}px, ${dy}px) rotate(${rotate}deg) scale(${scale})`,
             }}
           >
             <Image src={card.src} alt="" fill draggable={false} className="object-contain" />
