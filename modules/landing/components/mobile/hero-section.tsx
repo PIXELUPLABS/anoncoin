@@ -1,10 +1,24 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 import { MobileHeroLogos } from "./hero-logos";
 
 export function MobileHeroSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.play().catch(() => {});
+  }, []);
+
   return (
     <section className="flex flex-col">
       <div className="relative w-full overflow-hidden border-b-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]">
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop

@@ -1,12 +1,26 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 import { HeroActions } from "./hero-actions";
 import { HeroLogos } from "./hero-logos";
 import { HeroTagline } from "./hero-tagline";
 
 export function HeroSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.play().catch(() => {});
+  }, []);
+
   return (
     <section className="flex flex-col">
       <div className="relative h-196 w-full overflow-hidden border-b-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]">
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop
