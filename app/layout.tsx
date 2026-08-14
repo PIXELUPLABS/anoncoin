@@ -42,9 +42,9 @@ const interDisplay = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Anoncoin",
+  title: "NFA",
   description:
-    "Anoncoin is the lightning-fast trading terminal for Hyperliquid, bringing market intelligence straight to your chart across stocks, crypto, commodities, and indices.",
+    "NFA is the lightning-fast trading terminal for Hyperliquid, bringing market intelligence straight to your chart across stocks, crypto, commodities, and indices.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
