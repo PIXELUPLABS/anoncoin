@@ -54,7 +54,7 @@ export function MobileFooterSection() {
             in certain jurisdictions. Do your own research.
           </p>
         </div>
-        <div className="mt-14 flex items-center justify-between gap-3">
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <div className="flex shrink-0 items-center gap-3">
             <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase whitespace-nowrap">
               Powered By
