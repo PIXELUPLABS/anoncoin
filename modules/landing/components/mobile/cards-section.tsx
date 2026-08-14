@@ -78,7 +78,7 @@ export function MobileCardsSection() {
           anywhere in the world where NFA is available
         </p>
       </div>
-      <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+      <div className="no-scrollbar mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
         {CARDS.map((card) => {
           const isActive = activeCard === card.title;
 

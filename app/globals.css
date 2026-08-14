@@ -56,3 +56,12 @@ img {
 .animate-marquee-right {
   animation: marquee-right 60s linear infinite;
 }
+
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge/IE */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
