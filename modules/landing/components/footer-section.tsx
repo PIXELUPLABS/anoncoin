@@ -64,7 +64,7 @@ export function FooterSection() {
           <div className="w-1/2" />
           <div className="flex w-1/2 items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
+              <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase">
                 Powered By
               </span>
               <Image
@@ -76,7 +76,7 @@ export function FooterSection() {
                 className="h-4 w-auto opacity-60"
               />
             </div>
-            <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
+            <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase">
               &copy; 2026 NFA. Trade
             </span>
           </div>

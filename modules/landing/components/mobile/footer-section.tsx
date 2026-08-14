@@ -52,7 +52,7 @@ export function MobileFooterSection() {
           </p>
         </div>
         <div className="mt-14 flex flex-wrap items-center gap-3">
-          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
+          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase">
             Powered By
           </span>
           <Image
@@ -63,7 +63,7 @@ export function MobileFooterSection() {
             draggable={false}
             className="h-4 w-auto opacity-60"
           />
-          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
+          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase">
             &copy; 2026 NFA. Trade
           </span>
         </div>
