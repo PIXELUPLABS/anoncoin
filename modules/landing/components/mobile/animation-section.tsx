@@ -27,28 +27,28 @@ export function MobileAnimationSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex h-[640px] w-full items-center justify-center overflow-hidden border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-6"
+      className="relative flex h-[640px] w-full items-center justify-center overflow-hidden border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-[16px]"
     >
       <Image
-        src="/media/animation-bg.png"
+        src="/media/animation-bg-mobile.png"
         alt=""
         fill
         draggable={false}
         className={`object-cover transition-opacity duration-1000 ${visible ? "opacity-100" : "opacity-0"}`}
       />
       <p
-        className={`font-general-sans relative bg-clip-text text-center text-[28px] leading-[125%] font-normal tracking-[-0.02em] text-transparent transition-opacity duration-1000 ${visible ? "opacity-100" : "opacity-0"}`}
+        className={`font-general-sans relative bg-clip-text text-center text-[30px] leading-[125%] font-normal tracking-[-0.02em] text-transparent transition-opacity duration-1000 ${visible ? "opacity-100" : "opacity-0"}`}
         style={{ backgroundImage: "linear-gradient(to top, #9E9E9E 0%, #FFFFFF 100%)" }}
       >
         Every conversation
         <Image
           src="/media/x-icon.png"
           alt=""
-          width={28}
-          height={28}
+          width={34}
+          height={34}
           draggable={false}
           className="relative -top-1 inline-block align-middle mx-1"
-        />
+        /> <br />
         shapes the market. We turn the right ones into your next trade
         <Image
           src="/media/coin-icon.png"
