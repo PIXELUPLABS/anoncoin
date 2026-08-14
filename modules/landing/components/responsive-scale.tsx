@@ -3,6 +3,9 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
 const BASE_WIDTH = 1440;
+// Beyond this viewport width the site stops growing further - it holds at 1920px,
+// centered, with a border on each side marking where the page ends.
+const MAX_WIDTH = 1920;
 
 export function ResponsiveScale({ children }: { children: React.ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -15,7 +18,7 @@ export function ResponsiveScale({ children }: { children: React.ReactNode }) {
     if (!content) return;
 
     const update = () => {
-      setScale(window.innerWidth / BASE_WIDTH);
+      setScale(Math.min(window.innerWidth, MAX_WIDTH) / BASE_WIDTH);
       setContentHeight(content.offsetHeight);
       setReady(true);
     };
@@ -34,7 +37,7 @@ export function ResponsiveScale({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="w-full overflow-hidden"
+      className="mx-auto w-full max-w-[1920px] overflow-hidden border-x-[0.5px] border-[#FFFFFF1A]"
       style={{ height: contentHeight * scale || undefined, visibility: ready ? "visible" : "hidden" }}
     >
       <div
