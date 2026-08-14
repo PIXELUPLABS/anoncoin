@@ -29,8 +29,14 @@ export function MobileNavLinks() {
           className={`h-px w-5 bg-white transition-transform ${open ? "-translate-y-[6px] -rotate-45" : ""}`}
         />
       </button>
-      {open && (
-        <nav className="absolute top-14 right-0 left-0 z-20 flex flex-col gap-1 border-b-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-5 py-4">
+      <nav
+        className={`absolute top-14 right-0 left-0 z-20 overflow-hidden border-b-[0.5px] bg-[#0B0B0B] px-5 transition-all duration-300 ease-in-out ${
+          open
+            ? "max-h-96 border-[#FFFFFF1A] py-4 opacity-100"
+            : "pointer-events-none max-h-0 border-transparent py-0 opacity-0"
+        }`}
+      >
+        <div className="flex flex-col gap-1">
           {NAV_LINKS.map((link) => (
             <a
               key={link.label}
@@ -41,8 +47,8 @@ export function MobileNavLinks() {
               {link.label}
             </a>
           ))}
-        </nav>
-      )}
+        </div>
+      </nav>
     </>
   );
 }
