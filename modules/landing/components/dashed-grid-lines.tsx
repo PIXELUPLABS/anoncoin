@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 const DASHED_LINE_GAP = 109;
 
 const dashedLineBackground = `url("data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns='http://www.w3.org/2000/svg' width='1' height='8'><line x1='0.5' y1='0' x2='0.5' y2='8' stroke='#FFFFFF' stroke-opacity='0.06' stroke-width='1' stroke-dasharray='4 4'/></svg>`
+  `<svg xmlns='http://www.w3.org/2000/svg' width='1' height='8'><line x1='0.5' y1='0' x2='0.5' y2='8' stroke='#D9D9D9' stroke-opacity='0.03' stroke-width='1' stroke-dasharray='4 4'/></svg>`
 )}")`;
 
 const FADE_MASK_IMAGE =
