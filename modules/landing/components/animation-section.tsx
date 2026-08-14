@@ -119,142 +119,168 @@ export function AnimationSection() {
     const section = sectionRef.current;
     if (!section) return;
 
-    const tickRender = () => {
-      const target = progressRef.current;
-      const current = renderedProgressRef.current;
-      const diff = target - current;
-      if (Math.abs(diff) < 0.0005) {
-        renderedProgressRef.current = target;
-        setProgress(target);
-        rafIdRef.current = null;
-        return;
-      }
-      const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.25, MAX_PROGRESS_STEP_PER_FRAME);
-      renderedProgressRef.current = current + step;
-      setProgress(renderedProgressRef.current);
-      rafIdRef.current = requestAnimationFrame(tickRender);
-    };
+    // Only scroll-jack at md+ widths. Below that, <MobileAnimationSection> handles this
+    // section instead and this component's markup is merely hidden via CSS (`hidden md:block`
+    // at the call site), not unmounted - without this guard, its window-level listeners would
+    // still hijack scroll on phones (against a degenerate all-zero rect from being display:none).
+    const mql = window.matchMedia("(min-width: 768px)");
+    let detach: (() => void) | null = null;
 
-    const setProgressClamped = (value: number) => {
-      const next = Math.min(MAX_PROGRESS, Math.max(0, value));
-      progressRef.current = next;
-      if (rafIdRef.current === null) {
-        rafIdRef.current = requestAnimationFrame(tickRender);
-      }
-      return next;
-    };
-
-    // Returns true if this scroll delta was (fully or partially) absorbed by the
-    // animation and the caller should preventDefault; false if it should scroll normally.
-    const applyDelta = (delta: number) => {
-      if (delta === 0) return false;
-      const rect = section.getBoundingClientRect();
-      const top = rect.top;
-      const height = rect.height;
-      // The section only counts as "arrived" once it's entirely within the viewport
-      // (top and bottom edges both on-screen) - not just as soon as its top edge appears.
-      const entryTop = Math.max(0, window.innerHeight - height);
-      const current = progressRef.current;
-
-      if (delta > 0) {
-        // Scrolling down.
-        if (current >= MAX_PROGRESS) {
-          lockTopRef.current = null;
-          return false; // already fully open, let scrolling continue
+    const attach = () => {
+      const tickRender = () => {
+        const target = progressRef.current;
+        const current = renderedProgressRef.current;
+        const diff = target - current;
+        if (Math.abs(diff) < 0.0005) {
+          renderedProgressRef.current = target;
+          setProgress(target);
+          rafIdRef.current = null;
+          return;
         }
-        if (top > entryTop) {
-          const distance = top - entryTop;
-          if (delta < distance) return false; // won't reach full visibility this tick
-          // This tick crosses into the pin zone: land exactly at the boundary,
-          // then feed the leftover into the animation instead of letting it fall through.
-          window.scrollBy(0, distance);
-          const next = setProgressClamped(current + (delta - distance) / SCROLL_DISTANCE);
+        const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.25, MAX_PROGRESS_STEP_PER_FRAME);
+        renderedProgressRef.current = current + step;
+        setProgress(renderedProgressRef.current);
+        rafIdRef.current = requestAnimationFrame(tickRender);
+      };
+
+      const setProgressClamped = (value: number) => {
+        const next = Math.min(MAX_PROGRESS, Math.max(0, value));
+        progressRef.current = next;
+        if (rafIdRef.current === null) {
+          rafIdRef.current = requestAnimationFrame(tickRender);
+        }
+        return next;
+      };
+
+      // Returns true if this scroll delta was (fully or partially) absorbed by the
+      // animation and the caller should preventDefault; false if it should scroll normally.
+      const applyDelta = (delta: number) => {
+        if (delta === 0) return false;
+        const rect = section.getBoundingClientRect();
+        const top = rect.top;
+        const height = rect.height;
+        // The section only counts as "arrived" once it's entirely within the viewport
+        // (top and bottom edges both on-screen) - not just as soon as its top edge appears.
+        const entryTop = Math.max(0, window.innerHeight - height);
+        const current = progressRef.current;
+
+        if (delta > 0) {
+          // Scrolling down.
+          if (current >= MAX_PROGRESS) {
+            lockTopRef.current = null;
+            return false; // already fully open, let scrolling continue
+          }
+          if (top > entryTop) {
+            const distance = top - entryTop;
+            if (delta < distance) return false; // won't reach full visibility this tick
+            // This tick crosses into the pin zone: land exactly at the boundary,
+            // then feed the leftover into the animation instead of letting it fall through.
+            window.scrollBy(0, distance);
+            const next = setProgressClamped(current + (delta - distance) / SCROLL_DISTANCE);
+            lockTopRef.current = next < MAX_PROGRESS ? entryTop : null;
+            return true;
+          }
+          const next = setProgressClamped(current + delta / SCROLL_DISTANCE);
           lockTopRef.current = next < MAX_PROGRESS ? entryTop : null;
           return true;
         }
-        const next = setProgressClamped(current + delta / SCROLL_DISTANCE);
-        lockTopRef.current = next < MAX_PROGRESS ? entryTop : null;
-        return true;
-      }
 
-      // Scrolling up (delta < 0) - mirrors the down direction exactly, anchored on the
-      // same "fully visible" position so closing engages at the same point opening did.
-      if (current <= 0) {
-        lockTopRef.current = null;
-        return false; // already fully closed, let scrolling continue
-      }
-      if (top < entryTop) {
-        const distance = entryTop - top;
-        if (-delta < distance) return false; // won't reach full visibility this tick
-        window.scrollBy(0, -distance);
-        const next = setProgressClamped(current + (delta + distance) / SCROLL_DISTANCE);
+        // Scrolling up (delta < 0) - mirrors the down direction exactly, anchored on the
+        // same "fully visible" position so closing engages at the same point opening did.
+        if (current <= 0) {
+          lockTopRef.current = null;
+          return false; // already fully closed, let scrolling continue
+        }
+        if (top < entryTop) {
+          const distance = entryTop - top;
+          if (-delta < distance) return false; // won't reach full visibility this tick
+          window.scrollBy(0, -distance);
+          const next = setProgressClamped(current + (delta + distance) / SCROLL_DISTANCE);
+          lockTopRef.current = next > 0 ? entryTop : null;
+          return true;
+        }
+        const next = setProgressClamped(current + delta / SCROLL_DISTANCE);
         lockTopRef.current = next > 0 ? entryTop : null;
         return true;
+      };
+
+      const handleWheel = (event: WheelEvent) => {
+        if (applyDelta(event.deltaY)) {
+          event.preventDefault();
+        }
+      };
+
+      const handleTouchStart = (event: TouchEvent) => {
+        touchYRef.current = event.touches[0].clientY;
+      };
+
+      const handleTouchMove = (event: TouchEvent) => {
+        if (touchYRef.current === null) return;
+        const currentY = event.touches[0].clientY;
+        const delta = touchYRef.current - currentY;
+        touchYRef.current = currentY;
+        if (applyDelta(delta)) {
+          event.preventDefault();
+        }
+      };
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+        const target = event.target as HTMLElement | null;
+        if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
+        const delta = KEY_DELTAS[event.key];
+        if (delta === undefined) return;
+        const signedDelta = event.key === " " && event.shiftKey ? -delta : delta;
+        if (applyDelta(signedDelta)) {
+          event.preventDefault();
+        }
+      };
+
+      // Safety net: if the section drifts away from its required lock position through
+      // an input we don't directly handle (scrollbar drag, browser extensions, etc.),
+      // snap it back so the animation can never be skipped.
+      const handleScrollCorrection = () => {
+        const lockTop = lockTopRef.current;
+        if (lockTop === null) return;
+        const rect = section.getBoundingClientRect();
+        const drift = rect.top - lockTop;
+        if (Math.abs(drift) > 0.5) {
+          window.scrollBy(0, drift);
+        }
+      };
+
+      window.addEventListener("wheel", handleWheel, { passive: false });
+      window.addEventListener("touchstart", handleTouchStart, { passive: true });
+      window.addEventListener("touchmove", handleTouchMove, { passive: false });
+      window.addEventListener("keydown", handleKeyDown, { passive: false });
+      window.addEventListener("scroll", handleScrollCorrection, { passive: true });
+
+      return () => {
+        window.removeEventListener("wheel", handleWheel);
+        window.removeEventListener("touchstart", handleTouchStart);
+        window.removeEventListener("touchmove", handleTouchMove);
+        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("scroll", handleScrollCorrection);
+        if (rafIdRef.current !== null) {
+          cancelAnimationFrame(rafIdRef.current);
+        }
+      };
+    };
+
+    const sync = () => {
+      if (mql.matches && !detach) {
+        detach = attach();
+      } else if (!mql.matches && detach) {
+        detach();
+        detach = null;
       }
-      const next = setProgressClamped(current + delta / SCROLL_DISTANCE);
-      lockTopRef.current = next > 0 ? entryTop : null;
-      return true;
     };
 
-    const handleWheel = (event: WheelEvent) => {
-      if (applyDelta(event.deltaY)) {
-        event.preventDefault();
-      }
-    };
-
-    const handleTouchStart = (event: TouchEvent) => {
-      touchYRef.current = event.touches[0].clientY;
-    };
-
-    const handleTouchMove = (event: TouchEvent) => {
-      if (touchYRef.current === null) return;
-      const currentY = event.touches[0].clientY;
-      const delta = touchYRef.current - currentY;
-      touchYRef.current = currentY;
-      if (applyDelta(delta)) {
-        event.preventDefault();
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
-      const delta = KEY_DELTAS[event.key];
-      if (delta === undefined) return;
-      const signedDelta = event.key === " " && event.shiftKey ? -delta : delta;
-      if (applyDelta(signedDelta)) {
-        event.preventDefault();
-      }
-    };
-
-    // Safety net: if the section drifts away from its required lock position through
-    // an input we don't directly handle (scrollbar drag, browser extensions, etc.),
-    // snap it back so the animation can never be skipped.
-    const handleScrollCorrection = () => {
-      const lockTop = lockTopRef.current;
-      if (lockTop === null) return;
-      const rect = section.getBoundingClientRect();
-      const drift = rect.top - lockTop;
-      if (Math.abs(drift) > 0.5) {
-        window.scrollBy(0, drift);
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchmove", handleTouchMove, { passive: false });
-    window.addEventListener("keydown", handleKeyDown, { passive: false });
-    window.addEventListener("scroll", handleScrollCorrection, { passive: true });
+    sync();
+    mql.addEventListener("change", sync);
 
     return () => {
-      window.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("scroll", handleScrollCorrection);
-      if (rafIdRef.current !== null) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
+      mql.removeEventListener("change", sync);
+      detach?.();
     };
   }, []);
 
