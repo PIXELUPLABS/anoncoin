@@ -1,10 +1,8 @@
 import { MobileHeroLogos } from "./hero-logos";
-import { MobileNavbar } from "./navbar";
 
 export function MobileHeroSection() {
   return (
     <section className="flex flex-col">
-      <MobileNavbar />
       <div className="relative w-full overflow-hidden border-b-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]">
         <video
           autoPlay

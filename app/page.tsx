@@ -8,6 +8,7 @@ import { MobileCardsSection } from "@/modules/landing/components/mobile/cards-se
 import { MobileChartSection } from "@/modules/landing/components/mobile/chart-section";
 import { MobileFooterSection } from "@/modules/landing/components/mobile/footer-section";
 import { MobileHeroSection } from "@/modules/landing/components/mobile/hero-section";
+import { MobileNavbar } from "@/modules/landing/components/mobile/navbar";
 import { Navbar } from "@/modules/landing/components/navbar";
 import { ResponsiveScale } from "@/modules/landing/components/responsive-scale";
 
@@ -15,6 +16,7 @@ export default function Home() {
   return (
     <main className="flex flex-1 flex-col">
       <div className="md:hidden">
+        <MobileNavbar />
         <MobileHeroSection />
         <MobileCardsSection />
         <MobileAnimationSection />
