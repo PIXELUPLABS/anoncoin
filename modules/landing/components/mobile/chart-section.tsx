@@ -96,10 +96,10 @@ export function MobileChartSection() {
                 />
               </div>
             </div>
-            <div className="mt-6 flex flex-col">
+            <div className="mt-3 flex flex-col">
               <Image src={step.icon} alt="" width={22} height={22} draggable={false} />
               <p
-                className="font-general-sans mt-5 bg-clip-text text-[22px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
+                className="font-general-sans mt-3 bg-clip-text text-[22px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
                 style={{
                   backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
                 }}

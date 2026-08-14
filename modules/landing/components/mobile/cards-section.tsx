@@ -37,7 +37,7 @@ export function MobileCardsSection() {
   const [activeCard, setActiveCard] = useState<string | null>(null);
 
   return (
-    <section className="relative w-full border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-4 pb-10">
+    <section className="relative w-full bg-[#0B0B0B] px-4 pb-10">
       <div className="pointer-events-none absolute inset-y-0 left-4 w-px bg-[#FFFFFF1A]" />
       <div className="pointer-events-none absolute inset-y-0 right-4 w-px bg-[#FFFFFF1A]" />
       <div className="-mx-4 h-10 w-auto border-b-[0.5px] border-[#FFFFFF1A]" />
