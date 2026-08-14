@@ -3,13 +3,14 @@ import Image from "next/image";
 export function MobileFooterSection() {
   return (
     <footer className="relative w-full overflow-hidden bg-[#0B0B0B] px-5 py-14">
-      <Image
-        src="/media/footer-bg.png"
-        alt=""
-        width={850}
-        height={580}
-        draggable={false}
-        className="pointer-events-none absolute -top-10 left-0 h-auto w-full opacity-70"
+      <div
+        className="pointer-events-none absolute inset-x-0 -top-14 h-80 opacity-60"
+        style={{
+          backgroundImage: "url(/media/footer-bg.png)",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "left top",
+          backgroundSize: "900px 320px",
+        }}
       />
       <div className="relative flex flex-col">
         <Image src="/media/nfa-logo.svg" alt="NFA" width={80} height={38} draggable={false} />
