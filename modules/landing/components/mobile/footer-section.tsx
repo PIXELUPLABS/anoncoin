@@ -54,7 +54,7 @@ export function MobileFooterSection() {
             in certain jurisdictions. Do your own research.
           </p>
         </div>
-        <div className="mt-14 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 min-[391px]:flex-nowrap">
           <div className="flex shrink-0 items-center gap-3">
             <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase whitespace-nowrap">
               Powered By
@@ -68,7 +68,7 @@ export function MobileFooterSection() {
               className="h-4 w-auto shrink-0 opacity-60"
             />
           </div>
-          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase whitespace-nowrap">
+          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase whitespace-nowrap basis-full min-[391px]:basis-auto">
             &copy; 2026 NFA. Trade
           </span>
         </div>
