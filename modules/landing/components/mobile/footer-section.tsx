@@ -3,8 +3,8 @@ import Image from "next/image";
 export function MobileFooterSection() {
   return (
     <footer className="relative w-full overflow-hidden bg-[#0B0B0B] px-5 py-14">
-      <div className="pointer-events-none absolute inset-y-0 left-4 w-px bg-[#FFFFFF1A]" />
-      <div className="pointer-events-none absolute inset-y-0 right-4 w-px bg-[#FFFFFF1A]" />
+      <div className="pointer-events-none absolute inset-y-0 left-4 w-[0.5px] bg-[#FFFFFF1A]" />
+      <div className="pointer-events-none absolute inset-y-0 right-4 w-[0.5px] bg-[#FFFFFF1A]" />
       <div
         className="pointer-events-none absolute inset-x-0 -top-14 h-80 opacity-60"
         style={{

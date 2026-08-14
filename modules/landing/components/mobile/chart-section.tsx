@@ -32,8 +32,8 @@ const STEPS = [
 export function MobileChartSection() {
   return (
     <section className="relative w-full border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-4 py-10">
-      <div className="pointer-events-none absolute inset-y-0 left-4 w-px bg-[#FFFFFF1A]" />
-      <div className="pointer-events-none absolute inset-y-0 right-4 w-px bg-[#FFFFFF1A]" />
+      <div className="pointer-events-none absolute inset-y-0 left-4 w-[0.5px] bg-[#FFFFFF1A]" />
+      <div className="pointer-events-none absolute inset-y-0 right-4 w-[0.5px] bg-[#FFFFFF1A]" />
       <DashedGridLines fade={false} />
       <div className="relative">
         <div className="flex h-[22px] w-fit items-center gap-2 rounded-none bg-white px-2 py-1">
