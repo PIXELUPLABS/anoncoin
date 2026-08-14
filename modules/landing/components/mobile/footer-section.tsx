@@ -5,14 +5,13 @@ export function MobileFooterSection() {
     <footer className="relative w-full overflow-hidden bg-[#0B0B0B] px-5 py-14">
       <div className="pointer-events-none absolute inset-y-0 left-4 w-[0.5px] bg-[#FFFFFF1A]" />
       <div className="pointer-events-none absolute inset-y-0 right-4 w-[0.5px] bg-[#FFFFFF1A]" />
-      <div
-        className="pointer-events-none absolute inset-x-0 -top-14 h-80 opacity-60"
-        style={{
-          backgroundImage: "url(/media/footer-bg.png)",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "left top",
-          backgroundSize: "900px 320px",
-        }}
+      <Image
+        src="/media/footer-bg-mobile.png"
+        alt=""
+        width={786}
+        height={1154}
+        draggable={false}
+        className="pointer-events-none absolute top-0 left-0 h-auto w-full opacity-15"
       />
       <div className="relative flex flex-col">
         <Image src="/media/nfa-logo.svg" alt="NFA" width={84} height={40} draggable={false} />
