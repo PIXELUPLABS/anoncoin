@@ -95,9 +95,22 @@ const CARD_ANIMATIONS = [
   },
 ];
 
+// Per frame, closes 25% of the remaining gap but never more than this many progress units -
+// caps how fast the rendered animation can catch up so a huge single-event scroll delta
+// (a fast flick, or a PageDown whose delta happens to equal SCROLL_DISTANCE) still plays
+// every intermediate frame instead of jumping straight to its target.
+const MAX_PROGRESS_STEP_PER_FRAME = 0.05;
+
 export function AnimationSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  // The "logical" progress: updated instantly and synchronously from scroll input, and used
+  // for all the scroll-locking math below. Deliberately not what gets rendered - see
+  // `renderedProgressRef`.
   const progressRef = useRef(0);
+  // What's actually shown on screen. A rAF loop eases this toward `progressRef.current` every
+  // frame instead of snapping to it, so fast/bursty scroll input can never skip the animation.
+  const renderedProgressRef = useRef(0);
+  const rafIdRef = useRef<number | null>(null);
   const touchYRef = useRef<number | null>(null);
   const lockTopRef = useRef<number | null>(null);
   const [progress, setProgress] = useState(0);
@@ -106,10 +119,28 @@ export function AnimationSection() {
     const section = sectionRef.current;
     if (!section) return;
 
+    const tickRender = () => {
+      const target = progressRef.current;
+      const current = renderedProgressRef.current;
+      const diff = target - current;
+      if (Math.abs(diff) < 0.0005) {
+        renderedProgressRef.current = target;
+        setProgress(target);
+        rafIdRef.current = null;
+        return;
+      }
+      const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.25, MAX_PROGRESS_STEP_PER_FRAME);
+      renderedProgressRef.current = current + step;
+      setProgress(renderedProgressRef.current);
+      rafIdRef.current = requestAnimationFrame(tickRender);
+    };
+
     const setProgressClamped = (value: number) => {
       const next = Math.min(MAX_PROGRESS, Math.max(0, value));
       progressRef.current = next;
-      setProgress(next);
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(tickRender);
+      }
       return next;
     };
 
@@ -221,6 +252,9 @@ export function AnimationSection() {
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("scroll", handleScrollCorrection);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
     };
   }, []);
 
