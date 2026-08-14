@@ -13,6 +13,7 @@
   --font-dm-mono: var(--font-dm-mono);
   --font-general-sans: var(--font-general-sans);
   --font-inter: var(--font-inter);
+  --font-inter-display: var(--font-inter-display);
 }
 
 @media (prefers-color-scheme: dark) {

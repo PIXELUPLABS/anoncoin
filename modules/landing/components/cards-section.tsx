@@ -102,10 +102,10 @@ export function CardsSection() {
       <div className="mx-14 mt-4 flex gap-4">
         {CARDS.map((card) => (
           <div key={card.title} className="flex-1">
-            <p className="font-inter text-[20px] leading-none font-normal tracking-[-0.02em] text-white">
+            <p className="font-inter-display text-[20px] leading-none font-normal tracking-[-0.02em] text-white">
               {card.title}
             </p>
-            <p className="mt-2 font-inter text-[14px] leading-[120%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
+            <p className="mt-2 font-inter-display text-[14px] leading-[120%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
               {card.description}
             </p>
           </div>

@@ -244,7 +244,10 @@ export function AnimationSection() {
         className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-8"
         style={{ opacity: openProgress }}
       >
-        <p className="font-general-sans max-w-4xl text-center text-[56px] leading-[120%] font-normal tracking-[-0.02em] text-white">
+        <p
+          className="font-general-sans max-w-4xl bg-clip-text text-center text-[56px] leading-[120%] font-normal tracking-[-0.02em] text-transparent"
+          style={{ backgroundImage: "linear-gradient(to top, #9E9E9E 0%, #FFFFFF 100%)" }}
+        >
           Every conversation
           <Image
             src="/media/x-icon.png"

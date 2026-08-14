@@ -46,13 +46,13 @@ export function FooterSection() {
         <div className="mt-25 flex">
           <div className="w-1/2" />
           <div className="w-1/2">
-            <p className="font-inter text-[14px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D]">
+            <p className="font-inter-display text-[14px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D]">
               NFA provides software and market information only. Nothing on this website
               constitutes investment, financial, legal, or tax advice. Trading derivatives and
               digital assets involves substantial risk and may result in the loss of capital. Past
               performance and hypothetical trade outcomes are not indicative of future results.
             </p>
-            <p className="mt-6 font-inter text-[14px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D]">
+            <p className="mt-6 font-inter-display text-[14px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D]">
               NFA does not custody funds or guarantee the accuracy, completeness, or timeliness
               of third-party content. Trades route to third-party venues, including Hyperliquid,
               and remain subject to their terms, fees, availability, and risks. Access may be
