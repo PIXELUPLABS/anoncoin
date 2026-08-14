@@ -1,12 +1,10 @@
 import { HeroActions } from "./hero-actions";
 import { HeroLogos } from "./hero-logos";
 import { HeroTagline } from "./hero-tagline";
-import { Navbar } from "./navbar";
 
 export function HeroSection() {
   return (
     <section className="flex flex-col">
-      <Navbar />
       <div className="relative h-196 w-full overflow-hidden border-b-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]">
         <video
           autoPlay
