@@ -56,15 +56,23 @@ export function CardsSection() {
           </span>
         </div>
         <div className="mt-4 flex w-full items-end justify-between">
-          <h2
-            className="font-general-sans ml-14 bg-clip-text text-[52px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
-            style={{
-              backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
-            }}
-          >
-            250+ Assets.
-            <br />
-            One Terminal
+          <h2 className="font-general-sans ml-14 text-[52px] leading-[110%] font-normal tracking-[-0.02em]">
+            <span
+              className="block w-fit bg-clip-text text-transparent"
+              style={{
+                backgroundImage: "linear-gradient(90deg, #9BA0A7 0%, #D8DEE6 100%)",
+              }}
+            >
+              250+ Assets.
+            </span>
+            <span
+              className="block w-fit bg-clip-text text-transparent"
+              style={{
+                backgroundImage: "linear-gradient(90deg, #9BA0A7 0%, #D8DEE6 100%)",
+              }}
+            >
+              One Terminal
+            </span>
           </h2>
           <p className="mr-14 w-[432px] font-inter text-[16px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
             Trade exposure across stocks, crypto, commodities, and <br /> indices
