@@ -41,7 +41,7 @@ export function MobileHeroSection() {
               Learn More
             </button>
           </div>
-          <p className="font-dm-mono mt-10 text-[12px] leading-[100%] tracking-normal font-normal uppercase text-[#888888]">
+          <p className="font-dm-mono mt-10 text-[10px] leading-[100%] tracking-normal font-normal uppercase text-[#888888]">
             Markets never sleep. Neither does your terminal
           </p>
           <MobileHeroLogos />

@@ -49,13 +49,13 @@ export function MobileCardsSection() {
             width={11}
             height={11}
             draggable={false}
-            className="h-[14px] w-[14px] shrink-0"
+            className="h-[12px] w-[12px] shrink-0"
           />
-          <span className="translate-y-px font-dm-mono text-[12px] leading-none font-normal uppercase text-[#0B0B0B]">
+          <span className="font-dm-mono text-[10px] leading-none font-normal uppercase text-[#0B0B0B]">
             Global market access
           </span>
         </div>
-        <h2 className="font-general-sans mt-4 text-[36px] leading-[110%] font-normal tracking-[-0.02em]">
+        <h2 className="font-general-sans mt-4 text-[32px] leading-[110%] font-normal tracking-[-0.02em]">
           <span
             className="block w-fit bg-clip-text text-transparent"
             style={{
@@ -115,10 +115,10 @@ export function MobileCardsSection() {
                   />
                 </div>
               </button>
-              <p className="font-inter-display mt-3 text-[18px] leading-none font-normal tracking-[-0.02em] text-white">
+              <p className="font-inter-display mt-3 text-[20px] leading-none font-normal tracking-[-0.02em] text-white">
                 {card.title}
               </p>
-              <p className="font-inter-display mt-2 text-[13px] leading-[120%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
+              <p className="font-inter-display mt-2 text-[14px] leading-[120%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
                 {card.description}
               </p>
             </div>

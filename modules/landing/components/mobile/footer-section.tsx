@@ -15,7 +15,7 @@ export function MobileFooterSection() {
         }}
       />
       <div className="relative flex flex-col">
-        <Image src="/media/nfa-logo.svg" alt="NFA" width={80} height={38} draggable={false} />
+        <Image src="/media/nfa-logo.svg" alt="NFA" width={84} height={40} draggable={false} />
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10">
           {[
             { label: "Product", items: ["Market", "Signals", "Terminal"] },
@@ -23,7 +23,7 @@ export function MobileFooterSection() {
             { label: "Legal", items: ["Disclaimer", "Terms", "Privacy"] },
           ].map((column) => (
             <div key={column.label} className="flex flex-col items-start">
-              <span className="font-dm-mono text-[13px] leading-none font-normal tracking-[0.1em] text-white uppercase">
+              <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.1em] text-white uppercase">
                 {column.label}
               </span>
               <div className="mt-5 flex flex-col items-start gap-3">
@@ -31,7 +31,7 @@ export function MobileFooterSection() {
                   <a
                     key={item}
                     href="#"
-                    className="font-dm-mono text-[15px] leading-none font-normal tracking-[-0.02em] text-[#FFFFFF99] transition-colors hover:text-white"
+                    className="font-dm-mono text-[14px] leading-none font-normal tracking-[-0.02em] text-[#FFFFFF99] transition-colors hover:text-white"
                   >
                     {item}
                   </a>

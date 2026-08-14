@@ -43,9 +43,9 @@ export function MobileChartSection() {
             width={11}
             height={11}
             draggable={false}
-            className="h-[14px] w-[14px] shrink-0"
+            className="h-[12px] w-[12px] shrink-0"
           />
-          <span className="translate-y-px font-dm-mono text-[12px] leading-none font-normal uppercase text-[#0B0B0B]">
+          <span className="font-dm-mono text-[10px] leading-none font-normal uppercase text-[#0B0B0B]">
             Intelligence where you trade
           </span>
         </div>
@@ -61,7 +61,7 @@ export function MobileChartSection() {
           <br />
           To The Chart.
         </h2>
-        <p className="mt-4 font-inter text-[15px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99] text-balance">
+        <p className="mt-4 font-inter text-[16px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99] text-balance">
           See the post, understand the move, and act from one view. Every market-moving update
           arrives in real time and stays attached to the price action it influenced
         </p>
@@ -97,9 +97,9 @@ export function MobileChartSection() {
               </div>
             </div>
             <div className="mt-3 flex flex-col">
-              <Image src={step.icon} alt="" width={22} height={22} draggable={false} />
+              <Image src={step.icon} alt="" width={24} height={24} draggable={false} />
               <p
-                className="font-general-sans mt-3 bg-clip-text text-[22px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
+                className="font-general-sans mt-3 bg-clip-text text-[24px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
                 style={{
                   backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
                 }}
