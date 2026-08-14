@@ -4,26 +4,34 @@ const CARDS = [
   {
     title: "Stocks",
     description: "Global companies and sector leaders",
-    image: "/media/card-1.png",
-    hoverImage: "/media/card-5.png",
+    image: "/media/card-bg-1.png",
+    coinImage: "/media/coin-img-1.png",
   },
   {
     title: "Crypto",
     description: "Majors, altcoins, & emerging markets",
-    image: "/media/card-2.png",
-    hoverImage: "/media/card-6.png",
+    image: "/media/card-bg-2.png",
+    coinImage: "/media/coin-img-2.png",
+    // Unlike the other three coin images, this asset's coin isn't centered within its own
+    // canvas (it sits off to one side with extra empty space around it), so object-contain
+    // centers the canvas but not the coin itself - nudge it back into visual alignment.
+    coinOffsetClassName: "-translate-x-[15px] translate-y-[45px]",
+    // Its canvas also has a lot more empty padding around the coin than the other three,
+    // so object-contain renders it noticeably smaller - scale it up to match their size
+    // (hover scale bumped by the same ~10% the others get, to keep the hover grow consistent).
+    coinScaleClassName: "scale-[1.5] group-hover:scale-[1.63]",
   },
   {
     title: "Commodities",
     description: "Energy, metals, and real-world markets",
-    image: "/media/card-3.png",
-    hoverImage: "/media/card-7.png",
+    image: "/media/card-bg-3.png",
+    coinImage: "/media/coin-img-3.png",
   },
   {
     title: "Indices",
     description: "Broad exposure in a single position",
-    image: "/media/card-4.png",
-    hoverImage: "/media/card-8.png",
+    image: "/media/card-bg-4.png",
+    coinImage: "/media/coin-img-4.png",
   },
 ];
 
@@ -69,22 +77,25 @@ export function CardsSection() {
         {CARDS.map((card) => (
           <div
             key={card.title}
-            className="group relative h-full flex-1 overflow-hidden border-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
+            className="group relative h-full flex-1 overflow-hidden bg-[#0B0B0B]"
           >
             <Image
               src={card.image}
               alt={card.title}
               fill
               draggable={false}
-              className="object-fill transition-opacity duration-300 group-hover:opacity-0"
+              className="scale-100 object-fill opacity-[0.36] saturate-0 transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100 group-hover:saturate-100"
             />
-            <Image
-              src={card.hoverImage}
-              alt={card.title}
-              fill
-              draggable={false}
-              className="scale-100 object-fill opacity-0 transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100"
-            />
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <Image
+                src={card.coinImage}
+                alt=""
+                width={160}
+                height={160}
+                draggable={false}
+                className={`h-40 w-40 object-contain saturate-0 transition-all duration-500 ease-out group-hover:saturate-100 ${card.coinScaleClassName ?? "scale-100 group-hover:scale-110"} ${card.coinOffsetClassName ?? ""}`}
+              />
+            </div>
           </div>
         ))}
       </div>
