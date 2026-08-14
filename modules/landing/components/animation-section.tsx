@@ -19,6 +19,16 @@ function easeOutCubic(t: number) {
   return 1 - (1 - t) ** 3;
 }
 
+// Each of the 6 shader columns gets its own diagonal sheen (brightest at the corner nearest
+// the outer edge and the top, fading toward the center seam and downward) rather than one
+// flat color - sampled from the reference image, where each panel resets independently and
+// the peak brightness tapers from the outer columns inward toward the middle seam.
+const COLUMN_PEAKS = [28, 22, 14];
+function columnGradient(peak: number, direction: "to top right" | "to top left") {
+  const grey = peak.toString(16).padStart(2, "0");
+  return `linear-gradient(${direction}, #0B0B0B 0%, #${grey}${grey}${grey} 100%)`;
+}
+
 // Each card starts fully off-page beyond its origin corner (hidden) and slides in just
 // far enough to rest near that same corner - a small entrance, not a trip to center.
 const CARD_ANIMATIONS = [
@@ -259,16 +269,16 @@ export function AnimationSection() {
         className="relative z-20 flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-r-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
         style={{ transform: `translateX(${-openProgress * 100}%)` }}
       >
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="h-full flex-1" />
+        {COLUMN_PEAKS.map((peak, index) => (
+          <div key={index} className="h-full flex-1" style={{ background: columnGradient(peak, "to top right") }} />
         ))}
       </div>
       <div
         className="relative z-20 flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-l-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
         style={{ transform: `translateX(${openProgress * 100}%)` }}
       >
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="h-full flex-1" />
+        {[...COLUMN_PEAKS].reverse().map((peak, index) => (
+          <div key={index} className="h-full flex-1" style={{ background: columnGradient(peak, "to top left") }} />
         ))}
       </div>
       {CARD_ANIMATIONS.map((card) => {
