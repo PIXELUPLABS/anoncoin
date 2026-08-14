@@ -14,7 +14,7 @@ export function MobileHeroSection() {
         >
           <source src="/media/hero-bg-video.mp4" type="video/mp4" />
         </video>
-        <div className="relative flex flex-col items-start px-5 pt-[440px] pb-10">
+        <div className="relative flex flex-col items-start px-8 pt-[440px] pb-10">
           <h1
             className="font-general-sans bg-clip-text text-[40px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
             style={{

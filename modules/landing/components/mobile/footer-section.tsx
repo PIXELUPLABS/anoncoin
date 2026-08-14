@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function MobileFooterSection() {
   return (
-    <footer className="relative min-h-[742px] w-full overflow-hidden bg-[#0B0B0B] px-5 pt-14 pb-8">
+    <footer className="relative min-h-[742px] w-full overflow-hidden bg-[#0B0B0B] px-8 pt-14 pb-8">
       <div className="pointer-events-none absolute inset-y-0 left-4 w-[0.5px] bg-[#FFFFFF1A]" />
       <div className="pointer-events-none absolute inset-y-0 right-4 w-[0.5px] bg-[#FFFFFF1A]" />
       <Image
