@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 const CARDS = [
@@ -14,6 +17,7 @@ const CARDS = [
     coinImage: "/media/coin-img-2.png",
     coinOffsetClassName: "-translate-x-[15px] translate-y-[45px]",
     coinScaleClassName: "scale-[1.5]",
+    coinActiveScaleClassName: "scale-[1.63]",
   },
   {
     title: "Commodities",
@@ -30,9 +34,14 @@ const CARDS = [
 ];
 
 export function MobileCardsSection() {
+  const [activeCard, setActiveCard] = useState<string | null>(null);
+
   return (
-    <section className="relative w-full border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] py-10">
-      <div className="px-5">
+    <section className="relative w-full border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-4 pb-10">
+      <div className="pointer-events-none absolute inset-y-0 left-4 w-px bg-[#FFFFFF1A]" />
+      <div className="pointer-events-none absolute inset-y-0 right-4 w-px bg-[#FFFFFF1A]" />
+      <div className="-mx-4 h-10 w-auto border-b-[0.5px] border-[#FFFFFF1A]" />
+      <div>
         <div className="flex h-[22px] w-fit items-center gap-2 rounded-none bg-white px-2 py-1">
           <Image
             src="/media/globe-icon.svg"
@@ -56,35 +65,57 @@ export function MobileCardsSection() {
           <br />
           One Terminal
         </h2>
-        <p className="mt-4 font-inter text-[15px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
+        <p className="mt-4 font-inter text-[16px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
           Trade exposure across stocks, crypto, commodities, and indices around the clock, from
           anywhere in the world where NFA is available
         </p>
       </div>
-      <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2">
-        {CARDS.map((card) => (
-          <div key={card.title} className="w-[270px] shrink-0 snap-start">
-            <div className="relative h-[270px] w-full overflow-hidden bg-[#0B0B0B]">
-              <Image src={card.image} alt={card.title} fill draggable={false} className="object-fill" />
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+        {CARDS.map((card) => {
+          const isActive = activeCard === card.title;
+
+          return (
+            <div key={card.title} className="w-[270px] shrink-0 snap-start">
+              <button
+                type="button"
+                onClick={() => setActiveCard((prev) => (prev === card.title ? null : card.title))}
+                className="relative block h-[270px] w-full overflow-hidden bg-[#0B0B0B]"
+              >
                 <Image
-                  src={card.coinImage}
-                  alt=""
-                  width={160}
-                  height={160}
+                  src={card.image}
+                  alt={card.title}
+                  fill
                   draggable={false}
-                  className={`h-40 w-40 object-contain ${card.coinScaleClassName ?? ""} ${card.coinOffsetClassName ?? ""}`}
+                  className={`object-fill transition-all duration-500 ease-out ${
+                    isActive ? "scale-110 opacity-100 saturate-100" : "scale-100 opacity-[0.36] saturate-0"
+                  }`}
                 />
-              </div>
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <Image
+                    src={card.coinImage}
+                    alt=""
+                    width={160}
+                    height={160}
+                    draggable={false}
+                    className={`h-40 w-40 object-contain transition-all duration-500 ease-out ${
+                      isActive ? "saturate-100" : "saturate-0"
+                    } ${
+                      isActive
+                        ? (card.coinActiveScaleClassName ?? "scale-110")
+                        : (card.coinScaleClassName ?? "scale-100")
+                    } ${card.coinOffsetClassName ?? ""}`}
+                  />
+                </div>
+              </button>
+              <p className="font-inter-display mt-3 text-[18px] leading-none font-normal tracking-[-0.02em] text-white">
+                {card.title}
+              </p>
+              <p className="font-inter-display mt-2 text-[13px] leading-[120%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
+                {card.description}
+              </p>
             </div>
-            <p className="font-inter-display mt-3 text-[18px] leading-none font-normal tracking-[-0.02em] text-white">
-              {card.title}
-            </p>
-            <p className="font-inter-display mt-2 text-[13px] leading-[120%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
-              {card.description}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

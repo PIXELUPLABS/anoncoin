@@ -27,7 +27,7 @@ export function MobileAnimationSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative flex h-[420px] w-full items-center justify-center overflow-hidden border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-6"
+      className="relative flex h-[640px] w-full items-center justify-center overflow-hidden border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-6"
     >
       <Image
         src="/media/animation-bg.png"

@@ -31,9 +31,11 @@ const STEPS = [
 
 export function MobileChartSection() {
   return (
-    <section className="relative w-full border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] py-10">
+    <section className="relative w-full border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-4 py-10">
+      <div className="pointer-events-none absolute inset-y-0 left-4 w-px bg-[#FFFFFF1A]" />
+      <div className="pointer-events-none absolute inset-y-0 right-4 w-px bg-[#FFFFFF1A]" />
       <DashedGridLines fade={false} />
-      <div className="relative px-5">
+      <div className="relative">
         <div className="flex h-[22px] w-fit items-center gap-2 rounded-none bg-white px-2 py-1">
           <Image
             src="/media/globe-icon.svg"
@@ -53,9 +55,13 @@ export function MobileChartSection() {
             backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
           }}
         >
-          Market Intelligence Delivered Directly To The Chart.
+          Market Intelligence
+          <br />
+          Delivered Directly
+          <br />
+          To The Chart.
         </h2>
-        <p className="mt-4 font-inter text-[15px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99]">
+        <p className="mt-4 font-inter text-[15px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF99] text-balance">
           See the post, understand the move, and act from one view. Every market-moving update
           arrives in real time and stays attached to the price action it influenced
         </p>
@@ -67,7 +73,7 @@ export function MobileChartSection() {
           Start Trading
         </button>
       </div>
-      <div className="mt-10 flex flex-col gap-10">
+      <div className="mt-[49px] flex flex-col gap-10">
         {STEPS.map((step) => (
           <div key={step.label} className="flex flex-col">
             <div className="relative h-[280px] w-full">
@@ -90,7 +96,7 @@ export function MobileChartSection() {
                 />
               </div>
             </div>
-            <div className="mt-6 flex flex-col px-5">
+            <div className="mt-6 flex flex-col">
               <Image src={step.icon} alt="" width={22} height={22} draggable={false} />
               <p
                 className="font-general-sans mt-5 bg-clip-text text-[22px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"

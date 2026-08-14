@@ -2,14 +2,14 @@ import Image from "next/image";
 
 export function MobileFooterSection() {
   return (
-    <footer className="relative w-full overflow-hidden border-t-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-5 py-14">
+    <footer className="relative w-full overflow-hidden bg-[#0B0B0B] px-5 py-14">
       <Image
         src="/media/footer-bg.png"
         alt=""
         width={850}
         height={580}
         draggable={false}
-        className="pointer-events-none absolute bottom-0 left-0 h-auto w-full opacity-70"
+        className="pointer-events-none absolute -top-10 left-0 h-auto w-full opacity-70"
       />
       <div className="relative flex flex-col">
         <Image src="/media/nfa-logo.svg" alt="NFA" width={80} height={38} draggable={false} />
@@ -38,13 +38,13 @@ export function MobileFooterSection() {
           ))}
         </div>
         <div className="mt-14 flex flex-col gap-6">
-          <p className="font-inter-display text-[13px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D]">
+          <p className="font-inter-display text-[14px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D] text-balance">
             NFA provides software and market information only. Nothing on this website
             constitutes investment, financial, legal, or tax advice. Trading derivatives and
             digital assets involves substantial risk and may result in the loss of capital. Past
             performance and hypothetical trade outcomes are not indicative of future results.
           </p>
-          <p className="font-inter-display text-[13px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D]">
+          <p className="font-inter-display text-[14px] leading-[140%] font-normal tracking-[-0.02em] text-[#FFFFFF4D] text-balance">
             NFA does not custody funds or guarantee the accuracy, completeness, or timeliness of
             third-party content. Trades route to third-party venues, including Hyperliquid, and
             remain subject to their terms, fees, availability, and risks. Access may be restricted
@@ -52,7 +52,7 @@ export function MobileFooterSection() {
           </p>
         </div>
         <div className="mt-14 flex flex-wrap items-center gap-3">
-          <span className="font-dm-mono text-[13px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
+          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
             Powered By
           </span>
           <Image
@@ -63,7 +63,7 @@ export function MobileFooterSection() {
             draggable={false}
             className="h-4 w-auto opacity-60"
           />
-          <span className="font-dm-mono text-[13px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
+          <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF99] uppercase">
             &copy; 2026 NFA. Trade
           </span>
         </div>

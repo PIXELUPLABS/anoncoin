@@ -12,7 +12,7 @@ export function MobileHeroSection() {
           loop
           playsInline
           preload="auto"
-          className="absolute inset-0 h-[560px] w-full object-cover"
+          className="absolute inset-0 h-[560px] w-full object-cover object-[75%_50%]"
         >
           <source src="/media/hero-bg-video.mp4" type="video/mp4" />
         </video>
@@ -30,18 +30,18 @@ export function MobileHeroSection() {
               type="button"
               className="flex h-[46px] flex-1 cursor-pointer items-center justify-center gap-3 rounded-none bg-[#1D40C0] px-4 font-dm-mono text-[13px] leading-none font-normal uppercase text-white"
             >
-              <span className="h-[7px] w-[7px] shrink-0 -translate-y-px bg-current" />
+              <span className="h-[7px] w-[7px] shrink-0 bg-current" />
               Start Trading
             </button>
             <button
               type="button"
               className="flex h-[46px] flex-1 cursor-pointer items-center justify-center gap-3 rounded-none border-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B] px-4 font-dm-mono text-[13px] leading-none font-normal uppercase text-[#888888]"
             >
-              <span className="h-[7px] w-[7px] shrink-0 -translate-y-px bg-current" />
+              <span className="h-[7px] w-[7px] shrink-0 bg-current" />
               Learn More
             </button>
           </div>
-          <p className="font-dm-mono mt-10 text-[12px] leading-none font-normal uppercase text-[#888888]">
+          <p className="font-dm-mono mt-10 text-[12px] leading-[100%] tracking-normal font-normal uppercase text-[#888888]">
             Markets never sleep. Neither does your terminal
           </p>
           <MobileHeroLogos />
