@@ -18,7 +18,7 @@ export function MobileFooterSection() {
         <div className="mt-18 grid grid-cols-2 gap-x-4 gap-y-10">
           {[
             { label: "Product", items: ["Market", "Signals", "Terminal"] },
-            { label: "Community", items: ["X", "Discord", "Docs"] },
+            { label: "Community", items: ["X", "Telegram", "Docs"] },
             { label: "Legal", items: ["Disclaimer", "Terms", "Privacy"] },
           ].map((column) => (
             <div key={column.label} className="flex flex-col items-start">
@@ -68,7 +68,7 @@ export function MobileFooterSection() {
             />
           </div>
           <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase whitespace-nowrap basis-full min-[391px]:basis-auto">
-            &copy; 2026 NFA. Trade
+            &copy; 2026 NFA.Trade
           </span>
         </div>
       </div>

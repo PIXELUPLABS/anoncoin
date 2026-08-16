@@ -21,7 +21,7 @@ export function FooterSection() {
           <div className="grid w-1/2 grid-cols-3">
             {[
               { label: "Product", items: ["Market", "Signals", "Terminal"] },
-              { label: "Community", items: ["X", "Discord", "Docs"] },
+              { label: "Community", items: ["X", "Telegram", "Docs"] },
               { label: "Legal", items: ["Disclaimer", "Terms", "Privacy"] },
             ].map((column) => (
               <div key={column.label} className="flex flex-col items-start">
@@ -77,7 +77,7 @@ export function FooterSection() {
               />
             </div>
             <span className="font-dm-mono text-[14px] leading-none font-normal tracking-[0.01em] text-[#FFFFFF4D] uppercase">
-              &copy; 2026 NFA. Trade
+              &copy; 2026 NFA.Trade
             </span>
           </div>
         </div>

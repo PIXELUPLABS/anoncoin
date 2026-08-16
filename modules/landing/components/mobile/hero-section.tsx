@@ -35,7 +35,7 @@ export function MobileHeroSection() {
               backgroundImage: "linear-gradient(90deg, #AFB4BB 0%, #F2F7FF 60%, #FFFFFF 100%)",
             }}
           >
-            The Lightening-fast Trading Terminal for Hyperliquid
+            The Lightning-fast Trading Terminal for Hyperliquid
           </h1>
           <div className="mt-6 flex w-full items-center gap-3">
             <button
