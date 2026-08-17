@@ -25,7 +25,7 @@ export function ResponsiveScale({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="mx-auto w-full max-w-[1920px] border-x-[0.5px] border-[#FFFFFF1A]"
+      className="mx-auto w-full max-w-[1920px] overflow-hidden border-x-[0.5px] border-[#FFFFFF1A]"
       style={{ visibility: ready ? "visible" : "hidden" }}
     >
       <div style={{ width: BASE_WIDTH, zoom: scale }}>{children}</div>
