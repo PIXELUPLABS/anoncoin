@@ -6,6 +6,7 @@ const STEPS = [
   {
     src: "/media/chart-img-1.png",
     insetClassName: "inset-x-[24%] inset-y-[20%]",
+    imageClassName: "object-contain",
     icon: "/media/radar-line.svg",
     label: "Source Detected",
     description:
@@ -14,6 +15,7 @@ const STEPS = [
   {
     src: "/media/chart-img-2.png",
     insetClassName: "inset-x-[24%] top-[10%] bottom-[7%]",
+    imageClassName: "object-contain",
     icon: "/media/git-branch-line.svg",
     label: "Context Mapped To Chart",
     description:
@@ -22,6 +24,7 @@ const STEPS = [
   {
     src: "/media/chart-img-3.png",
     insetClassName: "inset-x-[16%] top-[14%] bottom-0",
+    imageClassName: "object-contain object-bottom",
     icon: "/media/checkbox-circle-line.svg",
     label: "Trade Ready",
     description:
@@ -92,7 +95,7 @@ export function MobileChartSection() {
                   fill
                   draggable={false}
                   unoptimized
-                  className="object-contain"
+                  className={step.imageClassName}
                 />
               </div>
             </div>
