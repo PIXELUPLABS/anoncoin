@@ -28,7 +28,7 @@ export function HeroSection() {
           preload="auto"
           className="absolute inset-0 h-full w-full object-cover"
         >
-          <source src="/media/hero-bg-video.mp4" type="video/mp4" />
+          <source src="/media/hero-bg-video-upscaled.mp4" type="video/mp4" />
         </video>
         <div className="absolute top-36 left-14 flex flex-col items-start">
           <h1

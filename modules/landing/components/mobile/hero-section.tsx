@@ -26,7 +26,7 @@ export function MobileHeroSection() {
           preload="auto"
           className="absolute inset-0 h-[560px] w-full object-cover object-[75%_50%]"
         >
-          <source src="/media/hero-bg-video.mp4" type="video/mp4" />
+          <source src="/media/hero-bg-video-upscaled.mp4" type="video/mp4" />
         </video>
         <div className="relative flex flex-col items-start px-5 pt-[440px] pb-10">
           <h1
