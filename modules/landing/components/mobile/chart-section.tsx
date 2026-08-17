@@ -5,7 +5,7 @@ import { DashedGridLines } from "../dashed-grid-lines";
 const STEPS = [
   {
     src: "/media/chart-img-1.png",
-    insetClassName: "inset-x-[24%] inset-y-[20%]",
+    insetClassName: "inset-x-[16%] inset-y-[10%]",
     imageClassName: "object-contain",
     icon: "/media/radar-line.svg",
     label: "Source Detected",
@@ -14,7 +14,7 @@ const STEPS = [
   },
   {
     src: "/media/chart-img-2.png",
-    insetClassName: "inset-x-[24%] top-[10%] bottom-[7%]",
+    insetClassName: "inset-x-[18%] top-[8%] bottom-[5%]",
     imageClassName: "object-contain",
     icon: "/media/git-branch-line.svg",
     label: "Context Mapped To Chart",
