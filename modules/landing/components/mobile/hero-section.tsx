@@ -1,22 +1,33 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useRef } from "react";
 
 import { MobileHeroLogos } from "./hero-logos";
 
 export function MobileHeroSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.play().catch(() => {});
+  }, []);
+
   return (
     <section className="flex flex-col">
       <div className="relative w-full overflow-hidden border-b-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]">
-        <div className="absolute inset-x-0 top-0 h-[560px]">
-          <Image
-            src="/media/hero-bg-upscaled.png"
-            alt=""
-            fill
-            priority
-            draggable={false}
-            sizes="100vw"
-            className="object-cover object-[75%_50%]"
-          />
-        </div>
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-[560px] w-full object-cover object-[75%_50%]"
+        >
+          <source src="/media/hero-bg-video.mp4" type="video/mp4" />
+        </video>
         <div className="relative flex flex-col items-start px-5 pt-[440px] pb-10">
           <h1
             className="font-general-sans bg-clip-text text-[40px] leading-[110%] font-normal tracking-[-0.02em] text-transparent"
