@@ -20,7 +20,7 @@ function easeOutCubic(t: number) {
 
 const CARD_ANIMATIONS = [
   {
-    src: "/media/animation-card-1.png",
+    src: "/media/img-card-1.png",
     width: 340,
     height: 177,
     hidden: { left: 1500, top: 860 },
@@ -33,7 +33,7 @@ const CARD_ANIMATIONS = [
     fadeIn: true,
   },
   {
-    src: "/media/animation-card-2.png",
+    src: "/media/img-card-2.png",
     width: 340,
     height: 179,
     hidden: { left: -400, top: 860 },
@@ -46,7 +46,7 @@ const CARD_ANIMATIONS = [
     fadeIn: true,
   },
   {
-    src: "/media/animation-card-3.png",
+    src: "/media/img-card-3.png",
     width: 340,
     height: 184,
     hidden: { left: -400, top: -244 },
@@ -59,7 +59,7 @@ const CARD_ANIMATIONS = [
     fadeIn: true,
   },
   {
-    src: "/media/animation-card-4.png",
+    src: "/media/img-card-4.png",
     width: 340,
     height: 187,
     hidden: { left: 1500, top: -247 },
