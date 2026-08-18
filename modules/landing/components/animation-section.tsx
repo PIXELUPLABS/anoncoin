@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const SCROLL_DISTANCE = 800;
-const MAX_PROGRESS = 2; // phase 1 (0-1): columns open. phase 2 (1-2): cards fly in.
+const MAX_PROGRESS = 1;
+
 const KEY_DELTAS: Record<string, number> = {
   ArrowDown: 80,
   ArrowUp: -80,
@@ -13,33 +14,17 @@ const KEY_DELTAS: Record<string, number> = {
   " ": 800,
 };
 
-// Eases 0->1 decelerating into place - monotonic (never overshoots and settles back),
-// so a card's landing only ever keeps moving forward toward its mark.
 function easeOutCubic(t: number) {
   return 1 - (1 - t) ** 3;
 }
 
-// Each of the 6 shader columns gets its own diagonal sheen (brightest at the corner nearest
-// the outer edge and the top, fading toward the center seam and downward) rather than one
-// flat color - sampled from the reference image, where each panel resets independently and
-// the peak brightness tapers from the outer columns inward toward the middle seam.
-const COLUMN_PEAKS = [28, 22, 14];
-function columnGradient(peak: number, direction: "to top right" | "to top left") {
-  const grey = peak.toString(16).padStart(2, "0");
-  return `linear-gradient(${direction}, #0B0B0B 0%, #${grey}${grey}${grey} 100%)`;
-}
-
-// Each card starts fully off-page beyond its origin corner (hidden) and slides in just
-// far enough to rest near that same corner - a small entrance, not a trip to center.
 const CARD_ANIMATIONS = [
   {
     src: "/media/animation-card-1.png",
     width: 340,
     height: 177,
-    hidden: { left: 1500, top: 860 }, // bottom-right, off-page
+    hidden: { left: 1500, top: 860 },
     visible: { left: 950, top: 585 },
-    // Curved entrance: arcs in, lands a little further than its base mark (never back-tracks),
-    // settling with a faint left tilt, and scales up from the corner it flies in from while fading in.
     landingOvershoot: 0.06,
     arcHeight: 70,
     tiltDeg: -3,
@@ -51,10 +36,8 @@ const CARD_ANIMATIONS = [
     src: "/media/animation-card-2.png",
     width: 340,
     height: 179,
-    hidden: { left: -400, top: 860 }, // bottom-left, off-page
+    hidden: { left: -400, top: 860 },
     visible: { left: 85, top: 580 },
-    // Mirror of card 1 (tilts right, scales from bottom-left), but with slightly different
-    // values throughout so it doesn't land in lockstep with card 1 - keeps it feeling organic.
     landingOvershoot: 0.045,
     arcHeight: 55,
     tiltDeg: 2,
@@ -66,11 +49,8 @@ const CARD_ANIMATIONS = [
     src: "/media/animation-card-3.png",
     width: 340,
     height: 184,
-    hidden: { left: -400, top: -244 }, // top-left, off-page
+    hidden: { left: -400, top: -244 },
     visible: { left: 56, top: 56 },
-    // Instead of resting at its corner, this one drifts on a little further, only up to
-    // where the centered text starts - shrinking and gradually blurring as it goes, and
-    // sitting beneath the text's z-index so it reads as sliding behind it, not landing next to it.
     driftTarget: { left: 190, top: 150 },
     tiltDeg: -5,
     scaleTo: 0.92,
@@ -82,10 +62,8 @@ const CARD_ANIMATIONS = [
     src: "/media/animation-card-4.png",
     width: 340,
     height: 187,
-    hidden: { left: 1500, top: -247 }, // top-right, off-page
+    hidden: { left: 1500, top: -247 },
     visible: { left: 1044, top: 56 },
-    // Mirror of card 3 (tilts right, drifts left-and-down past its corner toward the
-    // centered text), shrinking and gradually blurring, sitting beneath the text's z-index.
     driftTarget: { left: 910, top: 150 },
     tiltDeg: 5,
     scaleTo: 0.8,
@@ -95,197 +73,630 @@ const CARD_ANIMATIONS = [
   },
 ];
 
-// Per frame, closes 25% of the remaining gap but never more than this many progress units -
-// caps how fast the rendered animation can catch up so a huge single-event scroll delta
-// (a fast flick, or a PageDown whose delta happens to equal SCROLL_DISTANCE) still plays
-// every intermediate frame instead of jumping straight to its target.
-const MAX_PROGRESS_STEP_PER_FRAME = 0.05;
+const MAX_PROGRESS_STEP_PER_FRAME = 0.065;
 
 export function AnimationSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  // The "logical" progress: updated instantly and synchronously from scroll input, and used
-  // for all the scroll-locking math below. Deliberately not what gets rendered - see
-  // `renderedProgressRef`.
+
+  // Logical progress.
+  // This changes immediately based on scroll input.
   const progressRef = useRef(0);
-  // What's actually shown on screen. A rAF loop eases this toward `progressRef.current` every
-  // frame instead of snapping to it, so fast/bursty scroll input can never skip the animation.
+
+  // Actual progress rendered on screen.
+  // This smoothly follows logical progress.
   const renderedProgressRef = useRef(0);
+
   const rafIdRef = useRef<number | null>(null);
+
   const touchYRef = useRef<number | null>(null);
-  const lockTopRef = useRef<number | null>(null);
+
+  // Whether the animation section currently owns the scroll.
+  const isPinnedRef = useRef(false);
+
+  // Prevents wheel input from interfering while we programmatically
+  // move the page into the exact animation position.
+  const isProgrammaticScrollRef = useRef(false);
+
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const section = sectionRef.current;
+
     if (!section) return;
 
-    // Only scroll-jack at md+ widths. Below that, <MobileAnimationSection> handles this
-    // section instead and this component's markup is merely hidden via CSS (`hidden md:block`
-    // at the call site), not unmounted - without this guard, its window-level listeners would
-    // still hijack scroll on phones (against a degenerate all-zero rect from being display:none).
+    // Scroll animation is only enabled on desktop.
     const mql = window.matchMedia("(min-width: 768px)");
+
     let detach: (() => void) | null = null;
 
     const attach = () => {
+      let lastWheelTime = 0;
+
+      /**
+       * Smoothly render logical progress.
+       */
       const tickRender = () => {
         const target = progressRef.current;
         const current = renderedProgressRef.current;
+
         const diff = target - current;
+
         if (Math.abs(diff) < 0.0005) {
           renderedProgressRef.current = target;
+
           setProgress(target);
+
           rafIdRef.current = null;
+
           return;
         }
-        const step = Math.sign(diff) * Math.min(Math.abs(diff) * 0.25, MAX_PROGRESS_STEP_PER_FRAME);
+
+        const step =
+          Math.sign(diff) *
+          Math.min(
+            Math.abs(diff) * 0.3,
+            MAX_PROGRESS_STEP_PER_FRAME
+          );
+
         renderedProgressRef.current = current + step;
+
         setProgress(renderedProgressRef.current);
-        rafIdRef.current = requestAnimationFrame(tickRender);
+
+        rafIdRef.current =
+          requestAnimationFrame(tickRender);
       };
 
+      /**
+       * Update logical progress while keeping it between 0 and 1.
+       */
       const setProgressClamped = (value: number) => {
-        const next = Math.min(MAX_PROGRESS, Math.max(0, value));
+        const next = Math.min(
+          MAX_PROGRESS,
+          Math.max(0, value)
+        );
+
         progressRef.current = next;
+
         if (rafIdRef.current === null) {
-          rafIdRef.current = requestAnimationFrame(tickRender);
+          rafIdRef.current =
+            requestAnimationFrame(tickRender);
         }
+
         return next;
       };
 
-      // Returns true if this scroll delta was (fully or partially) absorbed by the
-      // animation and the caller should preventDefault; false if it should scroll normally.
+      /**
+       * Position at which the animation section should be locked.
+       *
+       * The section is considered fully arrived when its bottom
+       * reaches the bottom of the viewport.
+       */
+      const getEntryTop = () => {
+        const rect =
+          section.getBoundingClientRect();
+
+        return Math.max(
+          0,
+          window.innerHeight - rect.height
+        );
+      };
+
+      /**
+       * Move the animation section to its exact locked position.
+       *
+       * IMPORTANT:
+       * We only do this when entering the animation.
+       * We do NOT continuously correct the scroll position.
+       */
+      const pinSection = () => {
+        const rect =
+          section.getBoundingClientRect();
+
+        const entryTop = getEntryTop();
+
+        const adjustment =
+          rect.top - entryTop;
+
+        if (Math.abs(adjustment) > 0.5) {
+          isProgrammaticScrollRef.current = true;
+
+          window.scrollTo({
+            top:
+              window.scrollY +
+              adjustment,
+            behavior: "auto",
+          });
+
+          requestAnimationFrame(() => {
+            isProgrammaticScrollRef.current =
+              false;
+          });
+        }
+
+        isPinnedRef.current = true;
+      };
+
+      /**
+       * Release the scroll lock.
+       */
+      const releasePin = () => {
+        isPinnedRef.current = false;
+      };
+
+      /**
+       * Apply scroll input to the animation.
+       */
       const applyDelta = (delta: number) => {
         if (delta === 0) return false;
-        const rect = section.getBoundingClientRect();
-        const top = rect.top;
-        const height = rect.height;
-        // The section only counts as "arrived" once it's entirely within the viewport
-        // (top and bottom edges both on-screen) - not just as soon as its top edge appears.
-        const entryTop = Math.max(0, window.innerHeight - height);
-        const current = progressRef.current;
 
-        if (delta > 0) {
-          // Scrolling down.
-          if (current >= MAX_PROGRESS) {
-            lockTopRef.current = null;
-            return false; // already fully open, let scrolling continue
-          }
-          if (top > entryTop) {
-            const distance = top - entryTop;
-            if (delta < distance) return false; // won't reach full visibility this tick
-            // This tick crosses into the pin zone: land exactly at the boundary,
-            // then feed the leftover into the animation instead of letting it fall through.
-            window.scrollBy(0, distance);
-            const next = setProgressClamped(current + (delta - distance) / SCROLL_DISTANCE);
-            lockTopRef.current = next < MAX_PROGRESS ? entryTop : null;
+        const rect =
+          section.getBoundingClientRect();
+
+        const entryTop = getEntryTop();
+
+        const current =
+          progressRef.current;
+
+        const rendered =
+          renderedProgressRef.current;
+
+        /*
+         * ==========================================================
+         * NOT CURRENTLY PINNED
+         * ==========================================================
+         */
+
+        if (!isPinnedRef.current) {
+          /*
+           * --------------------------------------------------------
+           * SCROLLING DOWN
+           * --------------------------------------------------------
+           */
+
+          if (delta > 0) {
+            /*
+             * If animation is already complete,
+             * allow normal page scrolling.
+             */
+            if (
+              current >= MAX_PROGRESS ||
+              rendered >= MAX_PROGRESS
+            ) {
+              releasePin();
+
+              return false;
+            }
+
+            /*
+             * Section hasn't reached the locked position yet.
+             */
+            if (rect.top > entryTop) {
+              const distance =
+                rect.top - entryTop;
+
+              /*
+               * This scroll event doesn't reach the
+               * animation section yet.
+               */
+              if (delta < distance) {
+                return false;
+              }
+
+              /*
+               * ====================================================
+               * IMPORTANT:
+               *
+               * We have reached the animation section.
+               *
+               * Move it into the exact locked position and
+               * consume the ENTIRE current wheel event.
+               *
+               * We intentionally DO NOT use remainingDelta here.
+               *
+               * This prevents the section from moving while
+               * the animation starts.
+               * ====================================================
+               */
+
+              pinSection();
+
+              return true;
+            }
+
+            /*
+             * Section is already at the animation position.
+             *
+             * Start the animation from this scroll event.
+             */
+            pinSection();
+
+            setProgressClamped(
+              current +
+                delta / SCROLL_DISTANCE
+            );
+
             return true;
           }
-          const next = setProgressClamped(current + delta / SCROLL_DISTANCE);
-          lockTopRef.current = next < MAX_PROGRESS ? entryTop : null;
+
+          /*
+           * --------------------------------------------------------
+           * SCROLLING UP
+           * --------------------------------------------------------
+           */
+
+          /*
+           * If animation is completely closed,
+           * allow normal page scrolling.
+           */
+          if (
+            current <= 0 ||
+            rendered <= 0
+          ) {
+            releasePin();
+
+            return false;
+          }
+
+          /*
+           * Section is above its locked position.
+           */
+          if (rect.top < entryTop) {
+            const distance =
+              entryTop - rect.top;
+
+            /*
+             * This scroll event doesn't reach the
+             * animation section yet.
+             */
+            if (-delta < distance) {
+              return false;
+            }
+
+            /*
+             * Move into the exact animation position.
+             *
+             * Consume the whole scroll event.
+             */
+            pinSection();
+
+            return true;
+          }
+
+          /*
+           * Section is already at its locked position.
+           *
+           * Start reversing the animation.
+           */
+          pinSection();
+
+          setProgressClamped(
+            current +
+              delta / SCROLL_DISTANCE
+          );
+
           return true;
         }
 
-        // Scrolling up (delta < 0) - mirrors the down direction exactly, anchored on the
-        // same "fully visible" position so closing engages at the same point opening did.
-        if (current <= 0) {
-          lockTopRef.current = null;
-          return false; // already fully closed, let scrolling continue
-        }
-        if (top < entryTop) {
-          const distance = entryTop - top;
-          if (-delta < distance) return false; // won't reach full visibility this tick
-          window.scrollBy(0, -distance);
-          const next = setProgressClamped(current + (delta + distance) / SCROLL_DISTANCE);
-          lockTopRef.current = next > 0 ? entryTop : null;
+        /*
+         * ==========================================================
+         * CURRENTLY PINNED
+         * ==========================================================
+         */
+
+        /*
+         * ----------------------------------------------------------
+         * SCROLLING DOWN WHILE ANIMATION IS PLAYING
+         * ----------------------------------------------------------
+         */
+
+        if (delta > 0) {
+          /*
+           * Animation is complete.
+           *
+           * Release the section so the browser can
+           * continue to the next section.
+           */
+          if (
+            current >= MAX_PROGRESS ||
+            rendered >= MAX_PROGRESS
+          ) {
+            releasePin();
+
+            return false;
+          }
+
+          /*
+           * Animation is still running.
+           *
+           * Consume the wheel event.
+           */
+          setProgressClamped(
+            current +
+              delta / SCROLL_DISTANCE
+          );
+
           return true;
         }
-        const next = setProgressClamped(current + delta / SCROLL_DISTANCE);
-        lockTopRef.current = next > 0 ? entryTop : null;
+
+        /*
+         * ----------------------------------------------------------
+         * SCROLLING UP WHILE ANIMATION IS PLAYING
+         * ----------------------------------------------------------
+         */
+
+        /*
+         * Animation is completely reversed.
+         *
+         * Release the lock so the browser can continue
+         * scrolling to the previous section.
+         */
+        if (
+          current <= 0 ||
+          rendered <= 0
+        ) {
+          releasePin();
+
+          return false;
+        }
+
+        /*
+         * Reverse animation.
+         */
+        setProgressClamped(
+          current +
+            delta / SCROLL_DISTANCE
+        );
+
         return true;
       };
 
-      const handleWheel = (event: WheelEvent) => {
-        if (applyDelta(event.deltaY)) {
+      /**
+       * Wheel / trackpad input.
+       */
+      const handleWheel = (
+        event: WheelEvent
+      ) => {
+        const now =
+          performance.now();
+
+        /*
+         * Ignore wheel input immediately around the
+         * programmatic positioning.
+         */
+        if (
+          isProgrammaticScrollRef.current &&
+          now - lastWheelTime < 50
+        ) {
+          event.preventDefault();
+
+          return;
+        }
+
+        lastWheelTime = now;
+
+        /*
+         * applyDelta returns true when the animation
+         * needs to own the scroll.
+         */
+        if (
+          applyDelta(event.deltaY)
+        ) {
           event.preventDefault();
         }
       };
 
-      const handleTouchStart = (event: TouchEvent) => {
-        touchYRef.current = event.touches[0].clientY;
+      /**
+       * Touch start.
+       */
+      const handleTouchStart = (
+        event: TouchEvent
+      ) => {
+        touchYRef.current =
+          event.touches[0].clientY;
       };
 
-      const handleTouchMove = (event: TouchEvent) => {
-        if (touchYRef.current === null) return;
-        const currentY = event.touches[0].clientY;
-        const delta = touchYRef.current - currentY;
-        touchYRef.current = currentY;
+      /**
+       * Touch move.
+       */
+      const handleTouchMove = (
+        event: TouchEvent
+      ) => {
+        if (
+          touchYRef.current === null
+        ) {
+          return;
+        }
+
+        const currentY =
+          event.touches[0].clientY;
+
+        const delta =
+          touchYRef.current -
+          currentY;
+
+        touchYRef.current =
+          currentY;
+
         if (applyDelta(delta)) {
           event.preventDefault();
         }
       };
 
-      const handleKeyDown = (event: KeyboardEvent) => {
-        const target = event.target as HTMLElement | null;
-        if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
-        const delta = KEY_DELTAS[event.key];
-        if (delta === undefined) return;
-        const signedDelta = event.key === " " && event.shiftKey ? -delta : delta;
-        if (applyDelta(signedDelta)) {
+      /**
+       * Touch end.
+       */
+      const handleTouchEnd = () => {
+        touchYRef.current = null;
+      };
+
+      /**
+       * Keyboard input.
+       */
+      const handleKeyDown = (
+        event: KeyboardEvent
+      ) => {
+        const target =
+          event.target as HTMLElement | null;
+
+        /*
+         * Don't hijack form controls.
+         */
+        if (
+          target &&
+          [
+            "INPUT",
+            "TEXTAREA",
+            "SELECT",
+          ].includes(target.tagName)
+        ) {
+          return;
+        }
+
+        const delta =
+          KEY_DELTAS[event.key];
+
+        if (delta === undefined) {
+          return;
+        }
+
+        const signedDelta =
+          event.key === " " &&
+          event.shiftKey
+            ? -delta
+            : delta;
+
+        if (
+          applyDelta(signedDelta)
+        ) {
           event.preventDefault();
         }
       };
 
-      // Safety net: if the section drifts away from its required lock position through
-      // an input we don't directly handle (scrollbar drag, browser extensions, etc.),
-      // snap it back so the animation can never be skipped.
-      const handleScrollCorrection = () => {
-        const lockTop = lockTopRef.current;
-        if (lockTop === null) return;
-        const rect = section.getBoundingClientRect();
-        const drift = rect.top - lockTop;
-        if (Math.abs(drift) > 0.5) {
-          window.scrollBy(0, drift);
-        }
-      };
+      /*
+       * IMPORTANT:
+       *
+       * There is intentionally NO scroll correction
+       * listener.
+       *
+       * The previous scroll correction loop could cause:
+       *
+       * wheel → scroll → correction → scroll → correction
+       *
+       * which produced the wobbling effect.
+       */
 
-      window.addEventListener("wheel", handleWheel, { passive: false });
-      window.addEventListener("touchstart", handleTouchStart, { passive: true });
-      window.addEventListener("touchmove", handleTouchMove, { passive: false });
-      window.addEventListener("keydown", handleKeyDown, { passive: false });
-      window.addEventListener("scroll", handleScrollCorrection, { passive: true });
+      window.addEventListener(
+        "wheel",
+        handleWheel,
+        {
+          passive: false,
+        }
+      );
+
+      window.addEventListener(
+        "touchstart",
+        handleTouchStart,
+        {
+          passive: true,
+        }
+      );
+
+      window.addEventListener(
+        "touchmove",
+        handleTouchMove,
+        {
+          passive: false,
+        }
+      );
+
+      window.addEventListener(
+        "touchend",
+        handleTouchEnd,
+        {
+          passive: true,
+        }
+      );
+
+      window.addEventListener(
+        "keydown",
+        handleKeyDown,
+        {
+          passive: false,
+        }
+      );
 
       return () => {
-        window.removeEventListener("wheel", handleWheel);
-        window.removeEventListener("touchstart", handleTouchStart);
-        window.removeEventListener("touchmove", handleTouchMove);
-        window.removeEventListener("keydown", handleKeyDown);
-        window.removeEventListener("scroll", handleScrollCorrection);
-        if (rafIdRef.current !== null) {
-          cancelAnimationFrame(rafIdRef.current);
+        window.removeEventListener(
+          "wheel",
+          handleWheel
+        );
+
+        window.removeEventListener(
+          "touchstart",
+          handleTouchStart
+        );
+
+        window.removeEventListener(
+          "touchmove",
+          handleTouchMove
+        );
+
+        window.removeEventListener(
+          "touchend",
+          handleTouchEnd
+        );
+
+        window.removeEventListener(
+          "keydown",
+          handleKeyDown
+        );
+
+        if (
+          rafIdRef.current !== null
+        ) {
+          cancelAnimationFrame(
+            rafIdRef.current
+          );
+
+          rafIdRef.current = null;
         }
       };
     };
 
     const sync = () => {
-      if (mql.matches && !detach) {
+      if (
+        mql.matches &&
+        !detach
+      ) {
         detach = attach();
-      } else if (!mql.matches && detach) {
+      } else if (
+        !mql.matches &&
+        detach
+      ) {
         detach();
+
         detach = null;
       }
     };
 
     sync();
-    mql.addEventListener("change", sync);
+
+    mql.addEventListener(
+      "change",
+      sync
+    );
 
     return () => {
-      mql.removeEventListener("change", sync);
+      mql.removeEventListener(
+        "change",
+        sync
+      );
+
       detach?.();
     };
   }, []);
 
-  const openProgress = Math.min(1, progress);
-  const cardsProgress = Math.max(0, progress - 1);
+  const cardsProgress = progress;
 
   return (
     <section
@@ -298,15 +709,15 @@ export function AnimationSection() {
         fill
         draggable={false}
         className="object-cover"
-        style={{ opacity: openProgress }}
       />
-      <div
-        className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-8"
-        style={{ opacity: openProgress }}
-      >
+
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-8">
         <p
           className="font-general-sans max-w-4xl bg-clip-text text-center text-[56px] leading-[120%] font-normal tracking-[-0.02em] text-transparent"
-          style={{ backgroundImage: "linear-gradient(to top, #9E9E9E 0%, #FFFFFF 100%)" }}
+          style={{
+            backgroundImage:
+              "linear-gradient(to top, #9E9E9E 0%, #FFFFFF 100%)",
+          }}
         >
           Every conversation
           <Image
@@ -315,7 +726,7 @@ export function AnimationSection() {
             width={56}
             height={56}
             draggable={false}
-            className="relative -top-1.5 inline-block align-middle mx-1"
+            className="relative -top-1.5 mx-1 inline-block align-middle"
           />
           shapes <br /> the market. We turn the right <br /> ones into your next trade
           <Image
@@ -324,80 +735,160 @@ export function AnimationSection() {
             width={60}
             height={60}
             draggable={false}
-            className="inline-block align-middle mx-1 mb-3"
+            className="mx-1 mb-3 inline-block align-middle"
           />
         </p>
       </div>
-      <div
-        className="relative z-20 flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-r-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
-        style={{ transform: `translateX(${-openProgress * 100}%)` }}
-      >
-        {COLUMN_PEAKS.map((peak, index) => (
-          <div key={index} className="h-full flex-1" style={{ background: columnGradient(peak, "to top right") }} />
-        ))}
-      </div>
-      <div
-        className="relative z-20 flex w-1/2 divide-x-[0.5px] divide-[#FFFFFF1A] border-l-[0.5px] border-[#FFFFFF1A] bg-[#0B0B0B]"
-        style={{ transform: `translateX(${openProgress * 100}%)` }}
-      >
-        {[...COLUMN_PEAKS].reverse().map((peak, index) => (
-          <div key={index} className="h-full flex-1" style={{ background: columnGradient(peak, "to top left") }} />
-        ))}
-      </div>
-      {CARD_ANIMATIONS.map((card) => {
-        // Cards without the extra fields fall back to the original straight, linear glide.
-        const eased = card.landingOvershoot !== undefined || card.driftTarget !== undefined;
-        const posT = eased ? easeOutCubic(cardsProgress) : cardsProgress;
-        // "Go a little further" is baked into the resting spot itself (pushed a bit past
-        // `visible`, further from `hidden`) rather than overshot-and-corrected mid-flight,
-        // so the card only ever keeps moving forward and never travels backward. A card can
-        // instead drift all the way past its corner mark toward an explicit point (e.g. the
-        // centered text) via `driftTarget`.
-        const targetLeft = card.driftTarget
-          ? card.driftTarget.left
-          : card.landingOvershoot
-            ? card.visible.left + (card.visible.left - card.hidden.left) * card.landingOvershoot
-            : card.visible.left;
-        const targetTop = card.driftTarget
-          ? card.driftTarget.top
-          : card.landingOvershoot
-            ? card.visible.top + (card.visible.top - card.hidden.top) * card.landingOvershoot
-            : card.visible.top;
-        const dx = (card.hidden.left - targetLeft) * (1 - posT);
-        // Monotonic rise (0 -> arcHeight, never back down) at a different easing rate than
-        // posT, so x and y arrive at different speeds - that mismatch is what reads as a
-        // curved path, without ever dipping back down once it nears its lift.
-        const arcLift = card.arcHeight ? card.arcHeight * Math.sin((Math.min(1, cardsProgress) * Math.PI) / 2) : 0;
-        const dy = (card.hidden.top - targetTop) * (1 - posT) - arcLift;
-        const rotate = card.tiltDeg ? card.tiltDeg * posT : 0;
-        const scaleFrom = card.scaleFrom ?? 1;
-        const scaleTo = card.scaleTo ?? 1;
-        const scale = scaleFrom + (scaleTo - scaleFrom) * posT;
-        const opacity = card.fadeIn ? Math.min(1, cardsProgress / 0.7) : 1;
-        // Ease-in (slow start, sharper toward the end) rather than posT's ease-out, so the
-        // card reads as a clear image for most of its travel and only gains blur near the end,
-        // instead of looking blurred as soon as it fades into view.
-        const blurPx = card.blurTo ? card.blurTo * cardsProgress ** 2 : 0;
-        return (
-          <div
-            key={card.src}
-            className="absolute z-30"
-            style={{
-              left: targetLeft,
-              top: targetTop,
-              width: card.width,
-              height: card.height,
-              opacity,
-              zIndex: card.zIndex,
-              filter: blurPx ? `blur(${blurPx}px)` : undefined,
-              transformOrigin: card.transformOrigin ?? "center",
-              transform: `translate(${dx}px, ${dy}px) rotate(${rotate}deg) scale(${scale})`,
-            }}
-          >
-            <Image src={card.src} alt="" fill draggable={false} className="object-contain" />
-          </div>
-        );
-      })}
+
+      {CARD_ANIMATIONS.map(
+        (card) => {
+          /*
+           * Cards with landingOvershoot or
+           * driftTarget use eased movement.
+           */
+          const eased =
+            card.landingOvershoot !==
+              undefined ||
+            card.driftTarget !==
+              undefined;
+
+          const posT = eased
+            ? easeOutCubic(
+                cardsProgress
+              )
+            : cardsProgress;
+
+          /*
+           * Calculate final target position.
+           */
+          const targetLeft =
+            card.driftTarget
+              ? card.driftTarget
+                  .left
+              : card.landingOvershoot
+                ? card.visible.left +
+                  (card.visible.left -
+                    card.hidden.left) *
+                    card.landingOvershoot
+                : card.visible.left;
+
+          const targetTop =
+            card.driftTarget
+              ? card.driftTarget.top
+              : card.landingOvershoot
+                ? card.visible.top +
+                  (card.visible.top -
+                    card.hidden.top) *
+                    card.landingOvershoot
+                : card.visible.top;
+
+          /*
+           * Horizontal movement.
+           */
+          const dx =
+            (card.hidden.left -
+              targetLeft) *
+            (1 - posT);
+
+          /*
+           * Curved vertical movement.
+           */
+          const arcLift =
+            card.arcHeight
+              ? card.arcHeight *
+                Math.sin(
+                  (Math.min(
+                    1,
+                    cardsProgress
+                  ) *
+                    Math.PI) /
+                    2
+                )
+              : 0;
+
+          const dy =
+            (card.hidden.top -
+              targetTop) *
+              (1 - posT) -
+            arcLift;
+
+          /*
+           * Rotation.
+           */
+          const rotate =
+            card.tiltDeg
+              ? card.tiltDeg * posT
+              : 0;
+
+          /*
+           * Scale.
+           */
+          const scaleFrom =
+            card.scaleFrom ?? 1;
+
+          const scaleTo =
+            card.scaleTo ?? 1;
+
+          const scale =
+            scaleFrom +
+            (scaleTo - scaleFrom) *
+              posT;
+
+          /*
+           * Fade in.
+           */
+          const opacity =
+            card.fadeIn
+              ? Math.min(
+                  1,
+                  cardsProgress /
+                    0.7
+                )
+              : 1;
+
+          /*
+           * Gradual blur.
+           */
+          const blurPx =
+            card.blurTo
+              ? card.blurTo *
+                cardsProgress **
+                  2
+              : 0;
+
+          return (
+            <div
+              key={card.src}
+              className="absolute z-30"
+              style={{
+                left: targetLeft,
+                top: targetTop,
+                width: card.width,
+                height: card.height,
+                opacity,
+                zIndex: card.zIndex,
+                filter: blurPx
+                  ? `blur(${blurPx}px)`
+                  : undefined,
+                transformOrigin:
+                  card.transformOrigin ??
+                  "center",
+                transform: `translate(${dx}px, ${dy}px) rotate(${rotate}deg) scale(${scale})`,
+                willChange:
+                  "transform, opacity, filter",
+              }}
+            >
+              <Image
+                src={card.src}
+                alt=""
+                fill
+                draggable={false}
+                className="object-contain"
+              />
+            </div>
+          );
+        }
+      )}
     </section>
   );
 }
