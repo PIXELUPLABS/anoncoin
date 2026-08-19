@@ -6,6 +6,15 @@ import { useEffect, useRef, useState } from "react";
 const SCROLL_DISTANCE = 800;
 const MAX_PROGRESS = 1;
 
+// Fraction of the section's height that must be visible in the
+// viewport before the scroll-jacked card animation locks in.
+//
+// ENTRY_VISIBLE_RATIO applies when scrolling down into the section
+// from above; EXIT_VISIBLE_RATIO applies when scrolling back up into
+// it from below (i.e. reversing the animation).
+const ENTRY_VISIBLE_RATIO = 0.4;
+const EXIT_VISIBLE_RATIO = 0.5;
+
 const KEY_DELTAS: Record<string, number> = {
   ArrowDown: 80,
   ArrowUp: -80,
@@ -168,8 +177,9 @@ export function AnimationSection() {
       /**
        * Position at which the animation section should be locked.
        *
-       * The section is considered fully arrived when its bottom
-       * reaches the bottom of the viewport.
+       * The animation starts as soon as ENTRY_VISIBLE_RATIO of the
+       * section's height has entered the viewport, not once the
+       * whole section is in view.
        */
       const getEntryTop = () => {
         const rect =
@@ -177,7 +187,28 @@ export function AnimationSection() {
 
         return Math.max(
           0,
-          window.innerHeight - rect.height
+          window.innerHeight -
+            rect.height *
+              ENTRY_VISIBLE_RATIO
+        );
+      };
+
+      /**
+       * Position at which the animation section should be locked
+       * when scrolling UP into it from below (reversing).
+       *
+       * Mirrors `getEntryTop`, but the section is now re-entering
+       * viewport-top-first (its bottom edge shows first), so
+       * EXIT_VISIBLE_RATIO of it is visible once its top has come
+       * back down to this point.
+       */
+      const getExitTop = () => {
+        const rect =
+          section.getBoundingClientRect();
+
+        return (
+          rect.height *
+            (EXIT_VISIBLE_RATIO - 1)
         );
       };
 
@@ -188,14 +219,14 @@ export function AnimationSection() {
        * We only do this when entering the animation.
        * We do NOT continuously correct the scroll position.
        */
-      const pinSection = () => {
+      const pinSection = (
+        targetTop: number
+      ) => {
         const rect =
           section.getBoundingClientRect();
 
-        const entryTop = getEntryTop();
-
         const adjustment =
-          rect.top - entryTop;
+          rect.top - targetTop;
 
         if (Math.abs(adjustment) > 0.5) {
           isProgrammaticScrollRef.current = true;
@@ -224,6 +255,54 @@ export function AnimationSection() {
       };
 
       /**
+       * Advance the reverse (scroll-up) animation by up to
+       * `pxAvailable` px, scrolling the page by that same amount so
+       * it visibly moves in sync with the cards instead of staying
+       * frozen.
+       *
+       * The scroll actually applied is capped to the distance still
+       * needed to finish reversing (`remainingPx`), so the page can
+       * never scroll further than the point where the animation
+       * completes — only once it hits 0 does the pin release and
+       * scrolling further is allowed.
+       */
+      const scrubReverse = (
+        pxAvailable: number
+      ) => {
+        if (pxAvailable <= 0) return;
+
+        const current =
+          progressRef.current;
+
+        const remainingPx =
+          current * SCROLL_DISTANCE;
+
+        const scrollAmount = Math.min(
+          pxAvailable,
+          remainingPx
+        );
+
+        if (scrollAmount > 0) {
+          window.scrollTo({
+            top:
+              window.scrollY -
+              scrollAmount,
+            behavior: "auto",
+          });
+
+          setProgressClamped(
+            current -
+              scrollAmount /
+                SCROLL_DISTANCE
+          );
+        }
+
+        if (pxAvailable >= remainingPx) {
+          releasePin();
+        }
+      };
+
+      /**
        * Apply scroll input to the animation.
        */
       const applyDelta = (delta: number) => {
@@ -231,8 +310,6 @@ export function AnimationSection() {
 
         const rect =
           section.getBoundingClientRect();
-
-        const entryTop = getEntryTop();
 
         const current =
           progressRef.current;
@@ -267,6 +344,9 @@ export function AnimationSection() {
               return false;
             }
 
+            const entryTop =
+              getEntryTop();
+
             /*
              * Section hasn't reached the locked position yet.
              */
@@ -298,17 +378,23 @@ export function AnimationSection() {
                * ====================================================
                */
 
-              pinSection();
+              pinSection(entryTop);
 
               return true;
             }
 
             /*
-             * Section is already at the animation position.
+             * Section is already at (or, e.g. right after reversing
+             * back in from the different EXIT_VISIBLE_RATIO point,
+             * already PAST) the entry position.
              *
-             * Start the animation from this scroll event.
+             * Pin at whichever is closer — never jump backward
+             * toward `entryTop` if we're already further along than
+             * it, only forward to it if we haven't reached it yet.
              */
-            pinSection();
+            pinSection(
+              Math.min(rect.top, entryTop)
+            );
 
             setProgressClamped(
               current +
@@ -337,12 +423,14 @@ export function AnimationSection() {
             return false;
           }
 
+          const exitTop = getExitTop();
+
           /*
            * Section is above its locked position.
            */
-          if (rect.top < entryTop) {
+          if (rect.top < exitTop) {
             const distance =
-              entryTop - rect.top;
+              exitTop - rect.top;
 
             /*
              * This scroll event doesn't reach the
@@ -353,26 +441,33 @@ export function AnimationSection() {
             }
 
             /*
-             * Move into the exact animation position.
-             *
-             * Consume the whole scroll event.
+             * Snap exactly to the exit trigger point — this fixes
+             * the precise spot the reverse animation starts from —
+             * then feed any delta left over in this same event
+             * straight into the scrub, so the page keeps moving
+             * instead of eating the rest of the gesture.
              */
-            pinSection();
+            pinSection(exitTop);
+
+            scrubReverse(-delta - distance);
 
             return true;
           }
 
           /*
-           * Section is already at its locked position.
+           * Section is already at (or, e.g. right after entering
+           * from the different ENTRY_VISIBLE_RATIO point, already
+           * PAST) the exit position.
            *
-           * Start reversing the animation.
+           * Pin at whichever is closer — never jump forward toward
+           * `exitTop` if we're already further along than it, only
+           * backward to it if we haven't reached it yet.
            */
-          pinSection();
-
-          setProgressClamped(
-            current +
-              delta / SCROLL_DISTANCE
+          pinSection(
+            Math.max(rect.top, exitTop)
           );
+
+          scrubReverse(-delta);
 
           return true;
         }
@@ -440,12 +535,11 @@ export function AnimationSection() {
         }
 
         /*
-         * Reverse animation.
+         * Reverse animation, scrolling the page along with it
+         * (capped so it can't outrun the animation — see
+         * `scrubReverse`).
          */
-        setProgressClamped(
-          current +
-            delta / SCROLL_DISTANCE
-        );
+        scrubReverse(-delta);
 
         return true;
       };
