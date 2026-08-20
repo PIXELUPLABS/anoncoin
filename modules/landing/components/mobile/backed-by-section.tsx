@@ -2,7 +2,6 @@ import Image from "next/image";
 
 const BACKED_LOGOS = [
   { images: [{ src: "/media/backed-logo-1.png", width: 153.64, height: 14.72 }] },
-  { images: [{ src: "/media/backed-logo-2.png", width: 107.64, height: 29.44 }] },
   { images: [{ src: "/media/backed-logo-3.png", width: 65.32, height: 21.16 }] },
   {
     images: [
@@ -11,6 +10,8 @@ const BACKED_LOGOS = [
     ],
   },
   { images: [{ src: "/media/backed-logo-5.png", width: 147.51, height: 35.13 }] },
+  { images: [{ src: "/media/backed-logo-6.png", width: 83.72, height: 21.16 }] },
+  { images: [{ src: "/media/backed-logo-7.png", width: 189.06, height: 21.16 }] },
 ];
 
 const REPEAT_COUNT = 4;

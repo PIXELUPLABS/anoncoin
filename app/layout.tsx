@@ -45,6 +45,11 @@ export const metadata: Metadata = {
   title: "NFA",
   description:
     "NFA is the lightning-fast trading terminal for Hyperliquid, bringing market intelligence straight to your chart across stocks, crypto, commodities, and indices.",
+  openGraph: {
+    title: "NFA",
+    description: "The lightning-fast trading terminal for Hyperliquid",
+    images: ["/media/og-banner.png"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
