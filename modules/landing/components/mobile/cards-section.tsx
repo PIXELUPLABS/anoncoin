@@ -40,7 +40,7 @@ export function MobileCardsSection() {
     <section className="relative w-full bg-[#0B0B0B] px-8 pb-10">
       <div className="pointer-events-none absolute inset-y-0 left-4 w-[0.5px] bg-[#FFFFFF1A]" />
       <div className="pointer-events-none absolute inset-y-0 right-4 w-[0.5px] bg-[#FFFFFF1A]" />
-      <div className="-mx-4 h-10 w-auto border-b-[0.5px] border-[#FFFFFF1A]" />
+      <div className="-mx-4 h-10 w-auto" />
       <div>
         <div className="flex h-[22px] w-fit items-center gap-2 rounded-none bg-white px-2 py-1">
           <Image
